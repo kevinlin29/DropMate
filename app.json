@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "DropMate",
+    "slug": "dropmate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "scheme": "dropmate",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash-gradient.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#F6F7F9"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#F6F7F9"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}

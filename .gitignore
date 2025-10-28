@@ -1,0 +1,48 @@
+# Expo / React Native
+node_modules/
+.expo/
+.expo-shared/
+.expo-dev-
+android/
+ios/
+web-build/
+.expo-staging/
+
+# Expo router artifacts
+.expo-router/
+
+# Metro
+.metro-cache/
+
+# macOS files
+.DS_Store
+*.swp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage / Reports
+coverage/
+*.lcov
+
+# Misc
+.env*
+.pnpm-store/
+build/
+dist/

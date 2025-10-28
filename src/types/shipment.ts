@@ -1,0 +1,18 @@
+export type Checkpoint = {
+  code: 'CREATED' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'EXCEPTION';
+  label: string;
+  timeIso: string;
+  location?: string;
+  meta?: Record<string, any>;
+};
+
+export type Shipment = {
+  id: string;
+  trackingNo: string;
+  carrier: 'UPS' | 'FedEx' | 'DHL' | 'CanadaPost' | 'Other';
+  nickname?: string;
+  status: Checkpoint['code'];
+  etaIso?: string;
+  checkpoints: Checkpoint[];
+  lastUpdatedIso: string;
+};

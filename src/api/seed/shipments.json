@@ -1,0 +1,111 @@
+[
+  {
+    "id": "ship_001",
+    "trackingNo": "1Z999AA10123456784",
+    "carrier": "UPS",
+    "nickname": "Work Laptop",
+    "status": "OUT_FOR_DELIVERY",
+    "etaIso": "2024-04-12T16:30:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Label created",
+        "timeIso": "2024-04-08T15:12:00.000Z",
+        "location": "Vancouver, BC"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "Departed facility",
+        "timeIso": "2024-04-10T02:45:00.000Z",
+        "location": "Calgary, AB"
+      },
+      {
+        "code": "OUT_FOR_DELIVERY",
+        "label": "With courier",
+        "timeIso": "2024-04-12T13:55:00.000Z",
+        "location": "Toronto, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-12T14:05:00.000Z"
+  },
+  {
+    "id": "ship_002",
+    "trackingNo": "6129999876543210",
+    "carrier": "CanadaPost",
+    "status": "IN_TRANSIT",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Shipment information received",
+        "timeIso": "2024-04-01T10:10:00.000Z",
+        "location": "Halifax, NS"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "Processed at facility",
+        "timeIso": "2024-04-09T21:20:00.000Z",
+        "location": "Ottawa, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-09T21:20:00.000Z"
+  },
+  {
+    "id": "ship_003",
+    "trackingNo": "JD0146000062819205",
+    "carrier": "DHL",
+    "nickname": "Spring Inventory",
+    "status": "DELIVERED",
+    "etaIso": "2024-04-05T18:00:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Order confirmed",
+        "timeIso": "2024-03-31T11:40:00.000Z",
+        "location": "Montreal, QC"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "Arrived at facility",
+        "timeIso": "2024-04-02T22:00:00.000Z",
+        "location": "Winnipeg, MB"
+      },
+      {
+        "code": "DELIVERED",
+        "label": "Delivered",
+        "timeIso": "2024-04-05T17:30:00.000Z",
+        "location": "Regina, SK"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-05T17:30:00.000Z"
+  },
+  {
+    "id": "ship_004",
+    "trackingNo": "784512003421",
+    "carrier": "FedEx",
+    "status": "EXCEPTION",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Shipment created",
+        "timeIso": "2024-04-03T08:15:00.000Z",
+        "location": "Quebec City, QC"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "Departed facility",
+        "timeIso": "2024-04-04T06:00:00.000Z",
+        "location": "Quebec City, QC"
+      },
+      {
+        "code": "EXCEPTION",
+        "label": "Weather delay",
+        "timeIso": "2024-04-06T09:30:00.000Z",
+        "location": "Drummondville, QC",
+        "meta": {
+          "reason": "Winter storm"
+        }
+      }
+    ],
+    "lastUpdatedIso": "2024-04-06T09:30:00.000Z"
+  }
+]
