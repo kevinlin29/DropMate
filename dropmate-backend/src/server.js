@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import parcelRoutes from "./routes/parcels.js";
+import shipmentRoutes from "./routes/shipments.js";
 import authRoutes from "./routes/auth.js";
 import db from "./models/db.js";
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // REST routes
-app.use("/api/parcels", parcelRoutes);
+app.use("/api/shipments", shipmentRoutes);
 app.use("/api/auth", authRoutes);
 
 // Setup WebSocket
