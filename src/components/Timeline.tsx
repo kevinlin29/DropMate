@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
+import { tokens } from '@/theme/tokens';
 import { Checkpoint } from '@/types';
 import { formatAbsoluteTime } from '@/utils/format';
 
@@ -32,7 +33,9 @@ export const Timeline: React.FC<TimelineProps> = ({ checkpoints, activeStatus, c
       {checkpoints.map((checkpoint, index) => {
         const isCompleted = index <= activeIndex;
         const isLast = index === checkpoints.length - 1;
-        const bulletColor = isCompleted ? theme.colors.primaryTeal : theme.semantic.border;
+        const bulletColor = isCompleted 
+          ? (theme.semantic.accent || tokens.colors.timelineActive)
+          : (theme.semantic.border || tokens.colors.timelineInactive);
 
         return (
           <View
@@ -47,7 +50,9 @@ export const Timeline: React.FC<TimelineProps> = ({ checkpoints, activeStatus, c
                   styles.bullet,
                   {
                     borderColor: bulletColor,
-                    backgroundColor: isCompleted ? bulletColor : theme.semantic.surface,
+                    backgroundColor: isCompleted 
+                      ? bulletColor 
+                      : (theme.semantic.surface || tokens.colors.surface),
                   },
                 ]}
               />
@@ -57,17 +62,29 @@ export const Timeline: React.FC<TimelineProps> = ({ checkpoints, activeStatus, c
                     styles.connector,
                     {
                       backgroundColor: isCompleted
-                        ? theme.colors.primaryTeal
-                        : theme.semantic.border,
+                        ? (theme.semantic.accent || tokens.colors.timelineActive)
+                        : (theme.semantic.border || tokens.colors.timelineInactive),
                     },
                   ]}
                 />
               ) : null}
             </View>
             <View style={styles.contentColumn}>
-              <Text style={[styles.label, { color: theme.semantic.text }]}>{checkpoint.label}</Text>
+              <Text 
+                style={[
+                  styles.label, 
+                  { color: theme.semantic.text || tokens.colors.textPrimary }
+                ]}
+              >
+                {checkpoint.label}
+              </Text>
               {!compact ? (
-                <Text style={[styles.meta, { color: theme.semantic.textMuted }]}>
+                <Text 
+                  style={[
+                    styles.meta, 
+                    { color: theme.semantic.textMuted || tokens.colors.textSecondary }
+                  ]}
+                >
                   {checkpoint.location ?? '—'} · {formatAbsoluteTime(checkpoint.timeIso)}
                 </Text>
               ) : null}
@@ -82,17 +99,17 @@ export const Timeline: React.FC<TimelineProps> = ({ checkpoints, activeStatus, c
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    gap: 16,
+    gap: tokens.spacing.md,
   },
   compactContainer: {
-    gap: 12,
+    gap: tokens.spacing.sm,
   },
   row: {
     flexDirection: 'row',
-    gap: 16,
+    gap: tokens.spacing.md,
   },
   rowCompact: {
-    gap: 12,
+    gap: tokens.spacing.sm,
   },
   markerColumn: {
     alignItems: 'center',
@@ -113,10 +130,9 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   label: {
-    fontSize: 15,
-    fontWeight: '500',
+    ...tokens.typography.bodyMedium,
   },
   meta: {
-    fontSize: 13,
+    ...tokens.typography.caption,
   },
 });

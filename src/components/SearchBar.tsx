@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, TextInput, TextInputProps, View } from 'react-na
 import { QrCode, Search } from 'lucide-react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
+import { tokens } from '@/theme/tokens';
 
 export type SearchBarProps = TextInputProps & {
   onScanPress?: () => void;
@@ -16,16 +17,23 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onScanPress, style, ...tex
       style={[
         styles.container,
         {
-          backgroundColor: theme.semantic.surface,
-          borderColor: theme.semantic.border,
+          backgroundColor: theme.semantic.surface || tokens.colors.surface,
         },
         style,
       ]}
     >
-      <Search color={theme.semantic.textMuted} size={20} />
+      <Search 
+        color={theme.semantic.textMuted || tokens.colors.textTertiary} 
+        size={20} 
+        strokeWidth={2}
+      />
       <TextInput
-        style={[styles.input, { color: theme.semantic.text }]}
-        placeholderTextColor={theme.semantic.textMuted}
+        style={[
+          styles.input, 
+          { color: theme.semantic.text || tokens.colors.textPrimary }
+        ]}
+        placeholderTextColor={theme.semantic.textMuted || tokens.colors.textTertiary}
+        placeholder="Search"
         returnKeyType="search"
         {...textInputProps}
       />
@@ -34,9 +42,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onScanPress, style, ...tex
           accessibilityRole="button"
           hitSlop={8}
           onPress={onScanPress}
-          style={styles.scanButton}
+          style={({ pressed }) => [
+            styles.scanButton,
+            {
+              backgroundColor: pressed 
+                ? tokens.colors.pressed 
+                : 'transparent',
+            },
+          ]}
         >
-          <QrCode color={theme.colors.accent} size={20} />
+          <QrCode 
+            color={theme.semantic.text || tokens.colors.textPrimary} 
+            size={20}
+            strokeWidth={2}
+          />
         </Pressable>
       ) : null}
     </View>
@@ -47,22 +66,22 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    gap: 12,
+    borderRadius: tokens.radii.input,
+    paddingHorizontal: tokens.spacing.md,
+    gap: tokens.spacing.sm,
     minHeight: 52,
+    ...tokens.shadows.sm,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    paddingVertical: 12,
+    ...tokens.typography.body,
+    paddingVertical: tokens.spacing.sm,
   },
   scanButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 44,
-    width: 44,
-    borderRadius: 22,
+    height: 40,
+    width: 40,
+    borderRadius: 20,
   },
 });

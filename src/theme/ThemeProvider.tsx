@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { ColorSchemeName, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 import { tokens, ThemeTokens } from './tokens';
 
 export type ThemeMode = 'light' | 'dark';
@@ -9,10 +9,18 @@ export type Theme = ThemeTokens & {
   semantic: {
     background: string;
     surface: string;
+    surfaceElevated: string;
     text: string;
+    textSecondary: string;
     textMuted: string;
     border: string;
+    borderLight: string;
     overlay: string;
+    accent: string;
+    success: string;
+    warning: string;
+    error: string;
+    pressed: string;
   };
 };
 
@@ -24,10 +32,18 @@ const buildTheme = (mode: ThemeMode): Theme => {
       semantic: {
         background: '#0F172A',
         surface: '#1E293B',
+        surfaceElevated: '#334155',
         text: '#F8FAFC',
+        textSecondary: '#CBD5E1',
         textMuted: '#94A3B8',
-        border: '#1E293B',
+        border: '#334155',
+        borderLight: '#1E293B',
         overlay: 'rgba(15, 23, 42, 0.6)',
+        accent: '#38BDF8',
+        success: '#4ADE80',
+        warning: '#FBBF24',
+        error: '#F87171',
+        pressed: 'rgba(255, 255, 255, 0.1)',
       },
     };
   }
@@ -38,10 +54,18 @@ const buildTheme = (mode: ThemeMode): Theme => {
     semantic: {
       background: tokens.colors.background,
       surface: tokens.colors.surface,
+      surfaceElevated: tokens.colors.surfaceElevated,
       text: tokens.colors.textPrimary,
-      textMuted: tokens.colors.textSecondary,
+      textSecondary: tokens.colors.textSecondary,
+      textMuted: tokens.colors.textTertiary,
       border: tokens.colors.border,
+      borderLight: tokens.colors.borderLight,
       overlay: tokens.colors.overlay,
+      accent: tokens.colors.accent,
+      success: tokens.colors.success,
+      warning: tokens.colors.warning,
+      error: tokens.colors.error,
+      pressed: tokens.colors.pressed,
     },
   };
 };

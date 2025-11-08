@@ -6,17 +6,17 @@ type StatusColorMap = Record<Checkpoint['code'], string>;
 type StatusTextMap = Record<Checkpoint['code'], string>;
 
 export const statusColors: StatusColorMap = {
-  CREATED: tokens.colors.accent,
-  IN_TRANSIT: tokens.colors.primaryTeal,
-  OUT_FOR_DELIVERY: tokens.colors.warning,
-  DELIVERED: tokens.colors.success,
-  EXCEPTION: tokens.colors.error,
+  CREATED: tokens.colors.statusCreated,
+  IN_TRANSIT: tokens.colors.statusInTransit,
+  OUT_FOR_DELIVERY: tokens.colors.statusOutForDelivery,
+  DELIVERED: tokens.colors.statusDelivered,
+  EXCEPTION: tokens.colors.statusException,
 };
 
 export const statusLabels: StatusTextMap = {
-  CREATED: 'Label created',
-  IN_TRANSIT: 'In transit',
-  OUT_FOR_DELIVERY: 'Out for delivery',
+  CREATED: 'Created',
+  IN_TRANSIT: 'In Transit',
+  OUT_FOR_DELIVERY: 'Out for Delivery',
   DELIVERED: 'Delivered',
   EXCEPTION: 'Exception',
 };
