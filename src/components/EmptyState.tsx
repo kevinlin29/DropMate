@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { useTheme } from '@/theme/ThemeProvider';
+import { tokens } from '@/theme/tokens';
 
 const illustration = require('@/../assets/images/empty-state.png');
 
@@ -24,12 +25,19 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <View style={styles.container}>
       <Image source={illustration} style={styles.image} resizeMode="contain" />
-      <Text style={[styles.title, { color: theme.semantic.text }]}>{title}</Text>
-      <Text style={[styles.description, { color: theme.semantic.textMuted }]}>{description}</Text>
+      <Text style={[styles.title, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+        {title}
+      </Text>
+      <Text style={[styles.description, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+        {description}
+      </Text>
       {actionLabel && onActionPress ? (
         <TouchableOpacity
           accessibilityRole="button"
-          style={[styles.button, { backgroundColor: theme.colors.primaryTeal }]}
+          style={[
+            styles.button, 
+            { backgroundColor: theme.semantic.accent || tokens.colors.textPrimary }
+          ]}
           onPress={onActionPress}
         >
           <Text style={styles.buttonLabel}>{actionLabel}</Text>
@@ -43,31 +51,32 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: tokens.spacing.xl,
+    gap: tokens.spacing.md,
   },
   image: {
     width: 180,
     height: 180,
+    marginBottom: tokens.spacing.xs,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...tokens.typography.h3,
     textAlign: 'center',
   },
   description: {
-    fontSize: 15,
+    ...tokens.typography.body,
     textAlign: 'center',
+    lineHeight: 22,
   },
   button: {
-    marginTop: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 999,
+    marginTop: tokens.spacing.xs,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingVertical: tokens.spacing.sm,
+    borderRadius: tokens.radii.pill,
+    ...tokens.shadows.sm,
   },
   buttonLabel: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
+    color: tokens.colors.surface,
+    ...tokens.typography.button,
   },
 });
