@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
+import { tokens } from '@/theme/tokens';
 
 export type FilterChipOption<Value extends string = string> = {
   label: string;
@@ -43,13 +44,27 @@ export const FilterChips = <Value extends string = string>({
               styles.chip,
               chipStyle,
               {
-                backgroundColor: selected ? theme.colors.primaryTeal : theme.semantic.surface,
-                borderColor: selected ? theme.colors.primaryTeal : theme.semantic.border,
+                backgroundColor: selected 
+                  ? (theme.semantic.text || tokens.colors.textPrimary)
+                  : (theme.semantic.surface || tokens.colors.surface),
+                borderColor: selected 
+                  ? (theme.semantic.text || tokens.colors.textPrimary)
+                  : (theme.semantic.border || tokens.colors.border),
                 opacity: pressed ? 0.92 : 1,
               },
             ]}
           >
-            <Text style={[styles.label, { color: selected ? '#FFFFFF' : theme.semantic.text }]} numberOfLines={1}>
+            <Text 
+              style={[
+                styles.label, 
+                { 
+                  color: selected 
+                    ? tokens.colors.surface 
+                    : (theme.semantic.text || tokens.colors.textPrimary) 
+                }
+              ]} 
+              numberOfLines={1}
+            >
               {option.label}
             </Text>
           </Pressable>
@@ -64,27 +79,26 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     minHeight: 48,
     maxHeight: 56,
-    paddingHorizontal: 4,
+    paddingHorizontal: tokens.spacing.xxs,
   },
   container: {
     flexDirection: 'row',
-    gap: 12,
+    gap: tokens.spacing.sm,
     alignItems: 'center',
     minHeight: 48,
   },
   chip: {
     borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
+    borderRadius: tokens.radii.pill,
+    paddingHorizontal: tokens.spacing.lg - 2,
+    paddingVertical: tokens.spacing.sm - 2,
     minHeight: 44,
     minWidth: 96,
     justifyContent: 'center',
     alignItems: 'center',
   },
   label: {
-    fontWeight: '600',
-    fontSize: 15,
+    ...tokens.typography.bodyMedium,
     lineHeight: 18,
   },
 });

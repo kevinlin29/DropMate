@@ -373,6 +373,7 @@ const styles = StyleSheet.create({
   },
   detailedContent: {
     padding: tokens.spacing.lg,
+    paddingRight: 140, // Add space for package illustration
     gap: tokens.spacing.md,
   },
   detailedHeader: {

@@ -1,9 +1,12 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
 
 import { Checkpoint } from '@/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
+
+// Import package image
+const packageImage = require('@/../assets/images/package.png');
 
 export type CourierCardProps = {
   trackingNumber: string;
@@ -17,6 +20,7 @@ export type CourierCardProps = {
   location?: string;
   updatedIso?: string;
   onPress?: () => void;
+  variant?: 'yellow' | 'blue' | 'white'; // Background color variant
 };
 
 export const CourierCard: React.FC<CourierCardProps> = ({
@@ -28,6 +32,7 @@ export const CourierCard: React.FC<CourierCardProps> = ({
   destinationDate,
   progress,
   onPress,
+  variant = 'white', // ADD THIS LINE - it was missing!
 }) => {
   const theme = useTheme();
 
@@ -67,6 +72,19 @@ export const CourierCard: React.FC<CourierCardProps> = ({
 
   const statusColor = getStatusColor();
 
+  // Get background color based on variant
+  const getBackgroundColor = () => {
+    switch (variant) {
+      case 'yellow':
+        return tokens.colors.cardBackgroundYellow;
+      case 'blue':
+        return tokens.colors.cardBackgroundBlue;
+      case 'white':
+      default:
+        return theme.semantic.surface || tokens.colors.surface;
+    }
+  };
+
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : 'summary'}
@@ -74,7 +92,7 @@ export const CourierCard: React.FC<CourierCardProps> = ({
       style={({ pressed }) => [
         styles.card,
         {
-          backgroundColor: theme.semantic.surface || tokens.colors.surface,
+          backgroundColor: getBackgroundColor(),
           opacity: pressed ? 0.95 : 1,
         },
       ]}
@@ -112,15 +130,16 @@ export const CourierCard: React.FC<CourierCardProps> = ({
               style={[
                 styles.timelineEnd,
                 {
-                  backgroundColor: progress === 100 ? statusColor : (theme.semantic.surface || tokens.colors.surface),
+                  backgroundColor: progress === 100 ? statusColor : 'transparent',
                   borderColor: statusColor,
+                  borderWidth: 2,
                 },
               ]}
             />
           </View>
         </View>
 
-        {/* Location Info */}
+        {/* Location Info - Horizontal Layout */}
         <View style={styles.locationRow}>
           <View style={styles.locationItem}>
             <Text style={[styles.locationName, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
@@ -141,13 +160,13 @@ export const CourierCard: React.FC<CourierCardProps> = ({
         </View>
       </View>
 
-      {/* 3D Package Illustration */}
+      {/* Package Illustration */}
       <View style={styles.packageIllustration}>
-        <View style={styles.packageBox}>
-          <View style={styles.packageTop} />
-          <View style={styles.packageFront} />
-          <View style={styles.packageSide} />
-        </View>
+        <Image 
+          source={packageImage} 
+          style={styles.packageImage}
+          resizeMode="contain"
+        />
       </View>
     </Pressable>
   );
@@ -159,33 +178,35 @@ const styles = StyleSheet.create({
     marginBottom: tokens.spacing.md,
     borderRadius: tokens.radii.card,
     overflow: 'visible',
-    ...tokens.shadows.md,
+    ...tokens.shadows.sm,
   },
   cardContent: {
-    padding: tokens.spacing.lg,
-    paddingBottom: tokens.spacing.xl,
+    padding: tokens.spacing.md,
+    paddingRight: 120, // Space for package
+    gap: tokens.spacing.sm,
   },
   statusBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: tokens.spacing.sm,
-    paddingVertical: tokens.spacing.xxs + 2,
-    borderRadius: tokens.radii.badge,
-    marginBottom: tokens.spacing.sm,
+    paddingVertical: tokens.spacing.xxs,
+    borderRadius: tokens.radii.pill,
   },
   statusText: {
     color: tokens.colors.surface,
-    ...tokens.typography.badge,
+    fontSize: 11,
+    fontWeight: '600',
   },
   trackingNumber: {
-    ...tokens.typography.trackingNumber,
-    marginBottom: tokens.spacing.lg,
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 24,
   },
   timelineContainer: {
-    marginBottom: tokens.spacing.md,
-    paddingHorizontal: tokens.spacing.xxs + 2,
+    paddingHorizontal: 0,
+    marginVertical: tokens.spacing.xxs,
   },
   timeline: {
-    height: 4,
+    height: 3,
     borderRadius: 2,
     position: 'relative',
     overflow: 'visible',
@@ -199,77 +220,50 @@ const styles = StyleSheet.create({
   },
   timelineStart: {
     position: 'absolute',
-    left: -6,
-    top: -4,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    left: -1,
+    top: -3.5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   timelineEnd: {
     position: 'absolute',
-    right: -6,
-    top: -4,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 2,
+    right: -1,
+    top: -3.5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   locationRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: tokens.spacing.md,
   },
   locationItem: {
     flex: 1,
+    gap: 2,
   },
   locationItemRight: {
     alignItems: 'flex-end',
   },
   locationName: {
-    ...tokens.typography.smallSemibold,
-    marginBottom: tokens.spacing.xxs,
+    fontSize: 13,
+    fontWeight: '600',
+    lineHeight: 18,
   },
   locationDate: {
-    ...tokens.typography.caption,
+    fontSize: 11,
+    lineHeight: 16,
   },
   packageIllustration: {
     position: 'absolute',
-    right: tokens.spacing.lg,
-    bottom: tokens.spacing.lg,
+    right: tokens.spacing.md,
+    bottom: tokens.spacing.sm,
     width: 100,
     height: 100,
   },
-  packageBox: {
+  packageImage: {
     width: '100%',
     height: '100%',
-    position: 'relative',
-  },
-  packageTop: {
-    position: 'absolute',
-    top: 0,
-    right: 10,
-    width: 50,
-    height: 35,
-    backgroundColor: tokens.colors.packageLight,
-    borderRadius: tokens.spacing.xxs,
-    transform: [{ skewY: '-20deg' }],
-  },
-  packageFront: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: 60,
-    height: 60,
-    backgroundColor: tokens.colors.packageOrange,
-    borderRadius: tokens.spacing.xxs,
-  },
-  packageSide: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 40,
-    height: 60,
-    backgroundColor: tokens.colors.packageDark,
-    borderRadius: tokens.spacing.xxs,
-    transform: [{ skewY: '20deg' }],
   },
 });

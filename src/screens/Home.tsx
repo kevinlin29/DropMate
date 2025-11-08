@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Bell, ChevronDown, Plus, Package, Eye, EyeOff } from 'lucide-react-native';
+import { Bell, ChevronDown, Plus, Package, Eye, EyeOff, Truck, Clock } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -137,21 +137,25 @@ export const HomeScreen: React.FC = () => {
           </Pressable>
         </View>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - 2 Buttons */}
         <View style={styles.actionButtons}>
           <Pressable 
             style={[styles.actionButton, { backgroundColor: theme.semantic.surface || tokens.colors.surface }]}
             onPress={handleAddTracking}
           >
-            <Plus size={20} color={theme.semantic.text || tokens.colors.textPrimary} strokeWidth={2.5} />
-            <Text style={[styles.actionButtonText, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-              New track
-            </Text>
-          </Pressable>
-          <Pressable style={[styles.actionButton, { backgroundColor: theme.semantic.surface || tokens.colors.surface }]}>
-            <Package size={20} color={theme.semantic.text || tokens.colors.textPrimary} strokeWidth={2.5} />
+            <Truck size={20} color={theme.semantic.text || tokens.colors.textPrimary} strokeWidth={2.5} />
             <Text style={[styles.actionButtonText, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
               Order us
+            </Text>
+          </Pressable>
+          
+          <Pressable 
+            style={[styles.actionButton, { backgroundColor: theme.semantic.surface || tokens.colors.surface }]}
+            onPress={() => navigation.navigate(ROUTES.Main, { screen: TABS.Track })}
+          >
+            <Clock size={20} color={theme.semantic.text || tokens.colors.textPrimary} strokeWidth={2.5} />
+            <Text style={[styles.actionButtonText, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+              History
             </Text>
           </Pressable>
         </View>
@@ -197,21 +201,25 @@ export const HomeScreen: React.FC = () => {
               ))}
             </>
           ) : currentShipments.length > 0 ? (
-            currentShipments.map((shipment) => {
+            currentShipments.map((shipment, index) => {
               const locations = getShipmentLocations(shipment);
               const firstCheckpoint = shipment.checkpoints[0];
               const lastCheckpoint = shipment.checkpoints[shipment.checkpoints.length - 1];
               
+              // Alternate between yellow and blue
+              const variant = index % 2 === 0 ? 'yellow' : 'blue';
+              
               return (
                 <CourierCard
                   key={shipment.id}
-                  trackingNumber={shipment.id}
+                  trackingNumber={shipment.trackingNo}
                   status={shipment.status}
                   origin={locations.origin}
                   destination={locations.destination}
                   originDate={firstCheckpoint ? formatDate(firstCheckpoint.timeIso) : 'N/A'}
                   destinationDate={lastCheckpoint ? formatDate(lastCheckpoint.timeIso) : 'N/A'}
                   progress={getProgress(shipment)}
+                  variant={variant}
                   onPress={() => navigation.navigate(ROUTES.ShipmentDetails, { shipmentId: shipment.id })}
                 />
               );

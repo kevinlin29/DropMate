@@ -14,6 +14,10 @@ export const colors = {
   surface: '#FFFFFF',
   surfaceElevated: '#FAFAFA',
   
+  // Card backgrounds (for alternating colors)
+  cardBackgroundYellow: '#FFF4E6',
+  cardBackgroundBlue: '#E6F7FF',
+  
   // Text
   textPrimary: '#000000',
   textSecondary: '#666666',
