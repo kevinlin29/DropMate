@@ -5,8 +5,6 @@ import { getReactNativePersistence } from '@firebase/auth/dist/rn/index.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Firebase configuration
-// Note: These values are safe to expose in client-side code
-// API key restrictions should be configured in Firebase Console
 const firebaseConfig = {
   apiKey: 'AIzaSyDhVe6Q8aJyK0vAWMJsrPIECw7hQZiVD5o',
   authDomain: 'dropmate-9dc10.firebaseapp.com',
@@ -36,11 +34,6 @@ try {
     persistence: getReactNativePersistence(AsyncStorage),
   });
 }
-
-// Analytics is web-only, so we conditionally initialize it
-// For React Native, you would use Firebase Analytics for React Native instead
-// We'll skip analytics for now as it's not critical for auth
-// If needed later, install: @react-native-firebase/analytics
 
 export { app, auth };
 export default app;
