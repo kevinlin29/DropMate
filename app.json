@@ -37,7 +37,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyC1c7iaO0OOUOym-xQcF_miAxlZE54SYJI"
+          "apiKey": "${GOOGLE_MAPS_API_KEY}"
         }
       },
       "package": "com.kevinlin29.dropmate"

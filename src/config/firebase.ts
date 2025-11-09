@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyDhVe6Q8aJyK0vAWMJsrPIECw7hQZiVD5o',
+  apiKey: process.env.FIREBASE_API_KEY || '',
   authDomain: 'dropmate-9dc10.firebaseapp.com',
   projectId: 'dropmate-9dc10',
   storageBucket: 'dropmate-9dc10.firebasestorage.app',

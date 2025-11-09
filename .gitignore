@@ -43,6 +43,7 @@ coverage/
 
 # Misc
 .env*
+key.env
 .pnpm-store/
 build/
 dist/
