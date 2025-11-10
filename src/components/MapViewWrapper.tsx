@@ -4,12 +4,16 @@ import { ActivityIndicator, StyleProp, StyleSheet, View, ViewStyle, Platform } f
 
 import { LatLng, getRegionForCoordinates, toMapCoordinates } from '@/utils/map';
 
+export type MapMarkerType = 'origin' | 'destination' | 'driver' | 'waypoint';
+
 export type MapMarker = {
   id: string;
   coordinate: LatLng;
   title?: string;
   description?: string;
   pinColor?: string;
+  type?: MapMarkerType;
+  completed?: boolean;
 };
 
 export type MapViewWrapperProps = {
@@ -83,6 +87,30 @@ export const MapViewWrapper: React.FC<MapViewWrapperProps> = ({
     }
   }, [onMapReady]);
 
+  // Helper function to get marker pin color based on type
+  const getMarkerColor = useCallback((marker: MapMarker): string => {
+    if (marker.pinColor) {
+      return marker.pinColor;
+    }
+
+    if (marker.completed) {
+      return '#9CA3AF'; // Gray for completed stops
+    }
+
+    switch (marker.type) {
+      case 'origin':
+        return '#10B981'; // Green
+      case 'destination':
+        return '#EF4444'; // Red
+      case 'driver':
+        return '#3B82F6'; // Blue
+      case 'waypoint':
+        return '#F59E0B'; // Amber/Orange
+      default:
+        return '#1497A1'; // Default teal
+    }
+  }, []);
+
   // Show loading indicator while initializing
   if (!isReady) {
     return (
@@ -106,7 +134,9 @@ export const MapViewWrapper: React.FC<MapViewWrapperProps> = ({
         <Polyline
           coordinates={routeCoordinates.map(toMapCoordinates)}
           strokeColor="#1497A1"
-          strokeWidth={4}
+          strokeWidth={5}
+          lineCap="round"
+          lineJoin="round"
         />
       )}
       {markers?.map((marker) => (
@@ -115,7 +145,8 @@ export const MapViewWrapper: React.FC<MapViewWrapperProps> = ({
           coordinate={toMapCoordinates(marker.coordinate)}
           title={marker.title}
           description={marker.description}
-          pinColor={marker.pinColor}
+          pinColor={getMarkerColor(marker)}
+          opacity={marker.completed ? 0.5 : 1.0}
         />
       ))}
     </MapView>

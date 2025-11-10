@@ -11,6 +11,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { ShipmentCard } from '@/components/ShipmentCard';
 import { PlaceholderCard } from '@/components/PlaceholderCard';
 import { useShipmentsListQuery, useShipmentRouteQuery } from '@/hooks/useShipmentsQuery';
+import { useDriverLocationSimulator } from '@/hooks/useDriverLocationSimulator';
 import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
 import { Shipment } from '@/types';
@@ -26,6 +27,10 @@ export const MapScreen: React.FC = () => {
   const [search, setSearch] = useState('');
   const isDriverMode = useDriver((state) => state.isDriverMode);
   const setDriverMode = useDriver((state) => state.setDriverMode);
+
+  // Driver location simulator disabled for now
+  // Enable when needed: useDriverLocationSimulator(FEATURE_FLAGS.mapsEnabled);
+  // useDriverLocationSimulator(false);
 
   const { data: shipments } = useShipmentsListQuery({ query: search });
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
@@ -48,37 +53,109 @@ export const MapScreen: React.FC = () => {
     FEATURE_FLAGS.mapsEnabled ? selectedId : undefined,
   );
 
+  // Build complete route: origin → stops → destination
+  const routeCoordinates = useMemo(() => {
+    if (!selectedShipment) {
+      return routeData?.coordinates || [];
+    }
+
+    const coords = [];
+
+    // Start with origin
+    if (selectedShipment.origin) {
+      coords.push({ lat: selectedShipment.origin.lat, lng: selectedShipment.origin.lng });
+    }
+
+    // Add all stops in order
+    if (selectedShipment.stops && selectedShipment.stops.length > 0) {
+      const sortedStops = [...selectedShipment.stops].sort((a, b) => a.order - b.order);
+      sortedStops.forEach((stop) => {
+        coords.push({ lat: stop.lat, lng: stop.lng });
+      });
+    }
+
+    // End with destination
+    if (selectedShipment.destination) {
+      coords.push({ lat: selectedShipment.destination.lat, lng: selectedShipment.destination.lng });
+    }
+
+    // If we have the full route data from API, use that instead (more detailed)
+    if (routeData?.coordinates && routeData.coordinates.length > 0) {
+      return routeData.coordinates;
+    }
+
+    return coords;
+  }, [selectedShipment, routeData]);
+
   const latestCheckpoint = useMemo(() => {
     if (!selectedShipment || !selectedShipment.checkpoints.length) return undefined;
     return selectedShipment.checkpoints[selectedShipment.checkpoints.length - 1];
   }, [selectedShipment]);
 
-  // User mode markers (courier + destination)
+  // Enhanced markers: origin, destination, waypoints, and driver location
   const markers = useMemo(() => {
-    if (!routeData?.coordinates || routeData.coordinates.length === 0) {
-      return [];
+    const markerList: Array<{
+      id: string;
+      coordinate: { lat: number; lng: number };
+      title?: string;
+      description?: string;
+      type?: 'origin' | 'destination' | 'driver' | 'waypoint';
+      completed?: boolean;
+    }> = [];
+
+    if (!selectedShipment) {
+      return markerList;
     }
 
-    const first = routeData.coordinates[0];
-    const last = routeData.coordinates[routeData.coordinates.length - 1];
+    // Add origin marker
+    if (selectedShipment.origin) {
+      markerList.push({
+        id: 'origin',
+        coordinate: { lat: selectedShipment.origin.lat, lng: selectedShipment.origin.lng },
+        title: 'Origin',
+        description: selectedShipment.origin.address,
+        type: 'origin' as const,
+      });
+    }
 
-    return [
-      {
-        id: 'courier',
-        coordinate: first,
-        title: 'Courier',
-        description: 'Current position',
-        pinColor: theme.semantic.accent || tokens.colors.accent,
-      },
-      {
+    // Add destination marker
+    if (selectedShipment.destination) {
+      markerList.push({
         id: 'destination',
-        coordinate: last,
+        coordinate: { lat: selectedShipment.destination.lat, lng: selectedShipment.destination.lng },
         title: 'Destination',
-        description: 'Delivery address',
-        pinColor: theme.semantic.error || tokens.colors.error,
-      },
-    ];
-  }, [routeData, theme.semantic]);
+        description: selectedShipment.destination.address,
+        type: 'destination' as const,
+      });
+    }
+
+    // Add waypoint markers (stops)
+    if (selectedShipment.stops && selectedShipment.stops.length > 0) {
+      selectedShipment.stops.forEach((stop) => {
+        markerList.push({
+          id: stop.id,
+          coordinate: { lat: stop.lat, lng: stop.lng },
+          title: `Stop ${stop.order}${stop.completed ? ' (Completed)' : ''}`,
+          description: stop.address,
+          type: 'waypoint' as const,
+          completed: stop.completed,
+        });
+      });
+    }
+
+    // Add driver location marker (static position from package data)
+    if (selectedShipment.driverLocation) {
+      markerList.push({
+        id: 'driver',
+        coordinate: { lat: selectedShipment.driverLocation.lat, lng: selectedShipment.driverLocation.lng },
+        title: 'Driver',
+        description: 'Current location',
+        type: 'driver' as const,
+      });
+    }
+
+    return markerList;
+  }, [selectedShipment]);
 
   const handleOpenDetails = useCallback((shipmentId: string) => {
     navigation.navigate(ROUTES.ShipmentDetails, { shipmentId });
@@ -146,7 +223,7 @@ export const MapScreen: React.FC = () => {
     >
       <View style={styles.mapContainer}>
         {FEATURE_FLAGS.mapsEnabled ? (
-          <MapViewSafe routeCoordinates={routeData?.coordinates} markers={markers} />
+          <MapViewSafe routeCoordinates={routeCoordinates} markers={markers} />
         ) : (
           <View style={[styles.placeholderWrapper, { backgroundColor: tokens.colors.background }]}>
             <PlaceholderCard

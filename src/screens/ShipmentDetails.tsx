@@ -34,6 +34,105 @@ export const ShipmentDetailsScreen: React.FC = () => {
     return shipment.checkpoints[shipment.checkpoints.length - 1];
   }, [shipment]);
 
+  // Build complete route: origin → stops → destination
+  const routeCoordinates = useMemo(() => {
+    if (!shipment) {
+      return routeData?.coordinates || [];
+    }
+
+    const coords = [];
+
+    // Start with origin
+    if (shipment.origin) {
+      coords.push({ lat: shipment.origin.lat, lng: shipment.origin.lng });
+    }
+
+    // Add all stops in order
+    if (shipment.stops && shipment.stops.length > 0) {
+      const sortedStops = [...shipment.stops].sort((a, b) => a.order - b.order);
+      sortedStops.forEach((stop) => {
+        coords.push({ lat: stop.lat, lng: stop.lng });
+      });
+    }
+
+    // End with destination
+    if (shipment.destination) {
+      coords.push({ lat: shipment.destination.lat, lng: shipment.destination.lng });
+    }
+
+    // If we have the full route data from API, use that instead (more detailed)
+    if (routeData?.coordinates && routeData.coordinates.length > 0) {
+      return routeData.coordinates;
+    }
+
+    return coords;
+  }, [shipment, routeData]);
+
+  // Enhanced markers: origin, destination, waypoints, and driver location
+  const markers = useMemo(() => {
+    const markerList: Array<{
+      id: string;
+      coordinate: { lat: number; lng: number };
+      title?: string;
+      description?: string;
+      type?: 'origin' | 'destination' | 'driver' | 'waypoint';
+      completed?: boolean;
+    }> = [];
+
+    if (!shipment) {
+      return markerList;
+    }
+
+    // Add origin marker
+    if (shipment.origin) {
+      markerList.push({
+        id: 'origin',
+        coordinate: { lat: shipment.origin.lat, lng: shipment.origin.lng },
+        title: 'Origin',
+        description: shipment.origin.address,
+        type: 'origin' as const,
+      });
+    }
+
+    // Add destination marker
+    if (shipment.destination) {
+      markerList.push({
+        id: 'destination',
+        coordinate: { lat: shipment.destination.lat, lng: shipment.destination.lng },
+        title: 'Destination',
+        description: shipment.destination.address,
+        type: 'destination' as const,
+      });
+    }
+
+    // Add waypoint markers (stops)
+    if (shipment.stops && shipment.stops.length > 0) {
+      shipment.stops.forEach((stop) => {
+        markerList.push({
+          id: stop.id,
+          coordinate: { lat: stop.lat, lng: stop.lng },
+          title: `Stop ${stop.order}${stop.completed ? ' (Completed)' : ''}`,
+          description: stop.address,
+          type: 'waypoint' as const,
+          completed: stop.completed,
+        });
+      });
+    }
+
+    // Add driver location marker
+    if (shipment.driverLocation) {
+      markerList.push({
+        id: 'driver',
+        coordinate: { lat: shipment.driverLocation.lat, lng: shipment.driverLocation.lng },
+        title: 'Driver',
+        description: 'Current location',
+        type: 'driver' as const,
+      });
+    }
+
+    return markerList;
+  }, [shipment]);
+
   if (!shipment) {
     return (
       <SafeAreaView
@@ -120,7 +219,7 @@ export const ShipmentDetailsScreen: React.FC = () => {
               Route Map
             </Text>
             <View style={styles.mapWrapper}>
-              <MapViewSafe routeCoordinates={routeData?.coordinates} />
+              <MapViewSafe routeCoordinates={routeCoordinates} markers={markers} />
             </View>
             {latestCheckpoint?.location ? (
               <View style={styles.metaRow}>

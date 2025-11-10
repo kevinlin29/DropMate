@@ -8,9 +8,9 @@ import { Shipment } from '@/types';
 import { sleep } from '@/utils/sleep';
 
 const STORAGE_KEYS = {
-  shipments: '@dropmate/shipments/v1',
-  routes: '@dropmate/routes/v1',
-  seeded: '@dropmate/seeded/v1',
+  shipments: '@dropmate/shipments/v2',
+  routes: '@dropmate/routes/v2',
+  seeded: '@dropmate/seeded/v2',
 };
 
 const seededShipments = shipmentsSeed as Shipment[];

@@ -18,6 +18,8 @@ export type MapViewWrapperProps = {
     title?: string;
     description?: string;
     pinColor?: string;
+    type?: 'origin' | 'destination' | 'driver' | 'waypoint';
+    completed?: boolean;
   }>;
   style?: any;
   initialRegion?: any;

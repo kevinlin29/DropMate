@@ -45,7 +45,9 @@
     "extra": {
       "eas": {
         "projectId": "00000000-0000-0000-0000-000000000000"
-      }
+      },
+      "firebaseApiKey": "${FIREBASE_API_KEY}",
+      "googleMapsApiKey": "${GOOGLE_MAPS_API_KEY}"
     },
     "plugins": [
       "expo-secure-store",

@@ -6,6 +6,28 @@ export type Checkpoint = {
   meta?: Record<string, any>;
 };
 
+export type LocationPoint = {
+  lat: number;
+  lng: number;
+  address: string;
+};
+
+export type RouteStop = {
+  id: string;
+  lat: number;
+  lng: number;
+  address: string;
+  completed: boolean;
+  order: number;
+  completedAt?: string;
+};
+
+export type DriverLocation = {
+  lat: number;
+  lng: number;
+  lastUpdated: string;
+};
+
 export type Shipment = {
   id: string;
   trackingNo: string;
@@ -15,6 +37,10 @@ export type Shipment = {
   etaIso?: string;
   checkpoints: Checkpoint[];
   lastUpdatedIso: string;
+  origin?: LocationPoint;
+  destination?: LocationPoint;
+  stops?: RouteStop[];
+  driverLocation?: DriverLocation;
 };
 
 export type DeliveryItem = {

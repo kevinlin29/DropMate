@@ -1,5 +1,92 @@
 [
   {
+    "id": "ship_test_001",
+    "trackingNo": "TEST-1234567890",
+    "carrier": "UPS",
+    "nickname": "TEST - Complete Journey",
+    "status": "OUT_FOR_DELIVERY",
+    "etaIso": "2024-04-12T18:00:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Package picked up",
+        "timeIso": "2024-04-12T08:00:00.000Z",
+        "location": "Toronto Distribution Center, ON"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "In transit - First stop completed",
+        "timeIso": "2024-04-12T10:30:00.000Z",
+        "location": "Downtown Toronto, ON"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "In transit - Second stop completed",
+        "timeIso": "2024-04-12T12:15:00.000Z",
+        "location": "Midtown Toronto, ON"
+      },
+      {
+        "code": "OUT_FOR_DELIVERY",
+        "label": "Out for delivery - Final destination",
+        "timeIso": "2024-04-12T14:00:00.000Z",
+        "location": "North York, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-12T14:30:00.000Z",
+    "origin": {
+      "lat": 43.6426,
+      "lng": -79.3871,
+      "address": "100 Queens Quay E, Toronto, ON M5E 0C3 (Distribution Center)"
+    },
+    "destination": {
+      "lat": 43.7615,
+      "lng": -79.4111,
+      "address": "5650 Yonge St, North York, ON M2M 4G3 (Customer)"
+    },
+    "stops": [
+      {
+        "id": "stop_test_1",
+        "lat": 43.6548,
+        "lng": -79.3839,
+        "address": "301 Front St W, Toronto, ON M5V 2T6 (First Delivery)",
+        "completed": true,
+        "order": 1,
+        "completedAt": "2024-04-12T10:30:00.000Z"
+      },
+      {
+        "id": "stop_test_2",
+        "lat": 43.6629,
+        "lng": -79.3957,
+        "address": "456 Queen St W, Toronto, ON M5V 2A8 (Second Delivery)",
+        "completed": true,
+        "order": 2,
+        "completedAt": "2024-04-12T12:15:00.000Z"
+      },
+      {
+        "id": "stop_test_3",
+        "lat": 43.6870,
+        "lng": -79.3980,
+        "address": "55 Bloor St W, Toronto, ON M4W 1A5 (Third Delivery)",
+        "completed": true,
+        "order": 3,
+        "completedAt": "2024-04-12T13:45:00.000Z"
+      },
+      {
+        "id": "stop_test_4",
+        "lat": 43.7230,
+        "lng": -79.4050,
+        "address": "2300 Yonge St, Toronto, ON M4P 1E4 (Fourth Delivery)",
+        "completed": false,
+        "order": 4
+      }
+    ],
+    "driverLocation": {
+      "lat": 43.7050,
+      "lng": -79.4020,
+      "lastUpdated": "2024-04-12T14:30:00.000Z"
+    }
+  },
+  {
     "id": "ship_001",
     "trackingNo": "1Z999AA10123456784",
     "carrier": "UPS",
@@ -26,28 +113,96 @@
         "location": "Toronto, ON"
       }
     ],
-    "lastUpdatedIso": "2024-04-12T14:05:00.000Z"
+    "lastUpdatedIso": "2024-04-12T14:05:00.000Z",
+    "origin": {
+      "lat": 43.6532,
+      "lng": -79.3832,
+      "address": "123 King St W, Toronto, ON M5H 1A1"
+    },
+    "destination": {
+      "lat": 43.6890,
+      "lng": -79.4145,
+      "address": "789 Bloor St W, Toronto, ON M6G 1L5"
+    },
+    "stops": [
+      {
+        "id": "stop_001_1",
+        "lat": 43.6629,
+        "lng": -79.3957,
+        "address": "456 Queen St W, Toronto, ON M5V 2A8",
+        "completed": true,
+        "order": 1,
+        "completedAt": "2024-04-12T14:15:00.000Z"
+      },
+      {
+        "id": "stop_001_2",
+        "lat": 43.6710,
+        "lng": -79.4020,
+        "address": "321 Dundas St W, Toronto, ON M5T 1G7",
+        "completed": false,
+        "order": 2
+      }
+    ],
+    "driverLocation": {
+      "lat": 43.6685,
+      "lng": -79.3995,
+      "lastUpdated": "2024-04-12T14:30:00.000Z"
+    }
   },
   {
     "id": "ship_002",
     "trackingNo": "6129999876543210",
     "carrier": "CanadaPost",
-    "status": "IN_TRANSIT",
+    "nickname": "Office Supplies",
+    "status": "OUT_FOR_DELIVERY",
     "checkpoints": [
       {
         "code": "CREATED",
         "label": "Shipment information received",
-        "timeIso": "2024-04-01T10:10:00.000Z",
-        "location": "Halifax, NS"
+        "timeIso": "2024-04-11T10:10:00.000Z",
+        "location": "Mississauga, ON"
       },
       {
-        "code": "IN_TRANSIT",
-        "label": "Processed at facility",
-        "timeIso": "2024-04-09T21:20:00.000Z",
-        "location": "Ottawa, ON"
+        "code": "OUT_FOR_DELIVERY",
+        "label": "Out for delivery",
+        "timeIso": "2024-04-12T09:20:00.000Z",
+        "location": "Toronto, ON"
       }
     ],
-    "lastUpdatedIso": "2024-04-09T21:20:00.000Z"
+    "lastUpdatedIso": "2024-04-12T09:20:00.000Z",
+    "origin": {
+      "lat": 43.6426,
+      "lng": -79.3871,
+      "address": "100 Queens Quay E, Toronto, ON M5E 0C3"
+    },
+    "destination": {
+      "lat": 43.7615,
+      "lng": -79.4111,
+      "address": "5650 Yonge St, North York, ON M2M 4G3"
+    },
+    "stops": [
+      {
+        "id": "stop_002_1",
+        "lat": 43.6870,
+        "lng": -79.3980,
+        "address": "55 Bloor St W, Toronto, ON M4W 1A5",
+        "completed": false,
+        "order": 1
+      },
+      {
+        "id": "stop_002_2",
+        "lat": 43.7230,
+        "lng": -79.4050,
+        "address": "2300 Yonge St, Toronto, ON M4P 1E4",
+        "completed": false,
+        "order": 2
+      }
+    ],
+    "driverLocation": {
+      "lat": 43.6650,
+      "lng": -79.3900,
+      "lastUpdated": "2024-04-12T10:00:00.000Z"
+    }
   },
   {
     "id": "ship_003",
@@ -61,7 +216,7 @@
         "code": "CREATED",
         "label": "Order confirmed",
         "timeIso": "2024-03-31T11:40:00.000Z",
-        "location": "Montreal, QC"
+        "location": "Halifax, NS"
       },
       {
         "code": "IN_TRANSIT",
@@ -76,7 +231,42 @@
         "location": "Regina, SK"
       }
     ],
-    "lastUpdatedIso": "2024-04-05T17:30:00.000Z"
+    "lastUpdatedIso": "2024-04-05T17:30:00.000Z",
+    "origin": {
+      "lat": 44.6488,
+      "lng": -63.5752,
+      "address": "1234 Barrington St, Halifax, NS B3J 1Y6"
+    },
+    "destination": {
+      "lat": 50.4452,
+      "lng": -104.6189,
+      "address": "2220 Victoria Ave, Regina, SK S4P 0S4"
+    },
+    "stops": [
+      {
+        "id": "stop_003_1",
+        "lat": 49.8951,
+        "lng": -97.1384,
+        "address": "400 Portage Ave, Winnipeg, MB R3C 3J6",
+        "completed": true,
+        "order": 1,
+        "completedAt": "2024-04-03T16:00:00.000Z"
+      },
+      {
+        "id": "stop_003_2",
+        "lat": 50.0256,
+        "lng": -105.7569,
+        "address": "789 Main St, Swift Current, SK S9H 0G5",
+        "completed": true,
+        "order": 2,
+        "completedAt": "2024-04-05T10:00:00.000Z"
+      }
+    ],
+    "driverLocation": {
+      "lat": 50.4452,
+      "lng": -104.6189,
+      "lastUpdated": "2024-04-05T17:30:00.000Z"
+    }
   },
   {
     "id": "ship_004",
@@ -106,6 +296,235 @@
         }
       }
     ],
-    "lastUpdatedIso": "2024-04-06T09:30:00.000Z"
+    "lastUpdatedIso": "2024-04-06T09:30:00.000Z",
+    "origin": {
+      "lat": 46.8139,
+      "lng": -71.2080,
+      "address": "345 Rue Saint-Jean, Quebec City, QC G1R 1P3"
+    },
+    "destination": {
+      "lat": 45.5017,
+      "lng": -73.5673,
+      "address": "678 Boulevard René-Lévesque, Montreal, QC H3B 1G8"
+    },
+    "stops": [],
+    "driverLocation": {
+      "lat": 45.8806,
+      "lng": -72.4842,
+      "lastUpdated": "2024-04-06T09:30:00.000Z"
+    }
+  },
+  {
+    "id": "ship_005",
+    "trackingNo": "1Z888BB20987654321",
+    "carrier": "UPS",
+    "nickname": "Birthday Gift",
+    "status": "OUT_FOR_DELIVERY",
+    "etaIso": "2024-04-12T14:00:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Package received",
+        "timeIso": "2024-04-10T08:30:00.000Z",
+        "location": "Markham, ON"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "In transit",
+        "timeIso": "2024-04-11T14:00:00.000Z",
+        "location": "Toronto, ON"
+      },
+      {
+        "code": "OUT_FOR_DELIVERY",
+        "label": "Out for delivery",
+        "timeIso": "2024-04-12T08:00:00.000Z",
+        "location": "Toronto, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-12T08:30:00.000Z",
+    "origin": {
+      "lat": 43.7000,
+      "lng": -79.4163,
+      "address": "1 Eglinton Ave E, Toronto, ON M4P 3A1"
+    },
+    "destination": {
+      "lat": 43.6500,
+      "lng": -79.3500,
+      "address": "10 Dundas St E, Toronto, ON M5B 2G9"
+    },
+    "stops": [
+      {
+        "id": "stop_005_1",
+        "lat": 43.6770,
+        "lng": -79.3870,
+        "address": "789 Avenue Rd, Toronto, ON M5R 2G7",
+        "completed": true,
+        "order": 1,
+        "completedAt": "2024-04-12T09:15:00.000Z"
+      }
+    ],
+    "driverLocation": {
+      "lat": 43.6620,
+      "lng": -79.3700,
+      "lastUpdated": "2024-04-12T10:00:00.000Z"
+    }
+  },
+  {
+    "id": "ship_006",
+    "trackingNo": "5554443332221110",
+    "carrier": "FedEx",
+    "nickname": "Electronics",
+    "status": "IN_TRANSIT",
+    "etaIso": "2024-04-13T16:00:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Picked up",
+        "timeIso": "2024-04-11T11:00:00.000Z",
+        "location": "Scarborough, ON"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "In transit to destination",
+        "timeIso": "2024-04-12T06:00:00.000Z",
+        "location": "Toronto, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-12T06:00:00.000Z",
+    "origin": {
+      "lat": 43.7731,
+      "lng": -79.2577,
+      "address": "300 Borough Dr, Scarborough, ON M1P 4P5"
+    },
+    "destination": {
+      "lat": 43.6280,
+      "lng": -79.3960,
+      "address": "55 Mill St, Toronto, ON M5A 3C4"
+    },
+    "stops": [
+      {
+        "id": "stop_006_1",
+        "lat": 43.7184,
+        "lng": -79.3380,
+        "address": "2901 Eglinton Ave E, Scarborough, ON M1J 2C8",
+        "completed": false,
+        "order": 1
+      },
+      {
+        "id": "stop_006_2",
+        "lat": 43.6765,
+        "lng": -79.3650,
+        "address": "720 Spadina Ave, Toronto, ON M5S 2T9",
+        "completed": false,
+        "order": 2
+      }
+    ],
+    "driverLocation": {
+      "lat": 43.7300,
+      "lng": -79.3100,
+      "lastUpdated": "2024-04-12T07:30:00.000Z"
+    }
+  },
+  {
+    "id": "ship_007",
+    "trackingNo": "CP123456789012",
+    "carrier": "CanadaPost",
+    "nickname": "Documents",
+    "status": "OUT_FOR_DELIVERY",
+    "etaIso": "2024-04-12T12:00:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Accepted at post office",
+        "timeIso": "2024-04-11T16:00:00.000Z",
+        "location": "Etobicoke, ON"
+      },
+      {
+        "code": "OUT_FOR_DELIVERY",
+        "label": "Out for delivery",
+        "timeIso": "2024-04-12T07:00:00.000Z",
+        "location": "Toronto, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-12T07:00:00.000Z",
+    "origin": {
+      "lat": 43.6205,
+      "lng": -79.5132,
+      "address": "3900 Lakeshore Blvd W, Etobicoke, ON M8W 1N6"
+    },
+    "destination": {
+      "lat": 43.6426,
+      "lng": -79.3871,
+      "address": "207 Queens Quay W, Toronto, ON M5J 1A7"
+    },
+    "stops": [],
+    "driverLocation": {
+      "lat": 43.6300,
+      "lng": -79.4200,
+      "lastUpdated": "2024-04-12T08:00:00.000Z"
+    }
+  },
+  {
+    "id": "ship_008",
+    "trackingNo": "DHL987654321ABC",
+    "carrier": "DHL",
+    "nickname": "Fashion Items",
+    "status": "OUT_FOR_DELIVERY",
+    "etaIso": "2024-04-12T15:30:00.000Z",
+    "checkpoints": [
+      {
+        "code": "CREATED",
+        "label": "Shipment created",
+        "timeIso": "2024-04-10T13:00:00.000Z",
+        "location": "Vaughan, ON"
+      },
+      {
+        "code": "IN_TRANSIT",
+        "label": "Processing at facility",
+        "timeIso": "2024-04-11T10:00:00.000Z",
+        "location": "North York, ON"
+      },
+      {
+        "code": "OUT_FOR_DELIVERY",
+        "label": "Out for delivery",
+        "timeIso": "2024-04-12T09:00:00.000Z",
+        "location": "Toronto, ON"
+      }
+    ],
+    "lastUpdatedIso": "2024-04-12T09:00:00.000Z",
+    "origin": {
+      "lat": 43.6548,
+      "lng": -79.3762,
+      "address": "278 Yonge St, Toronto, ON M5B 1N8"
+    },
+    "destination": {
+      "lat": 43.6795,
+      "lng": -79.3500,
+      "address": "2 Bloor St E, Toronto, ON M4W 1A8"
+    },
+    "stops": [
+      {
+        "id": "stop_008_1",
+        "lat": 43.6670,
+        "lng": -79.3620,
+        "address": "481 University Ave, Toronto, ON M5G 2E9",
+        "completed": true,
+        "order": 1,
+        "completedAt": "2024-04-12T10:30:00.000Z"
+      },
+      {
+        "id": "stop_008_2",
+        "lat": 43.6730,
+        "lng": -79.3560,
+        "address": "1 Dundonald St, Toronto, ON M4Y 1K2",
+        "completed": false,
+        "order": 2
+      }
+    ],
+    "driverLocation": {
+      "lat": 43.6700,
+      "lng": -79.3580,
+      "lastUpdated": "2024-04-12T11:00:00.000Z"
+    }
   }
 ]
