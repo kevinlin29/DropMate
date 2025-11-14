@@ -21,6 +21,7 @@ import { ProfileScreen } from '@/screens/Profile';
 import { SettingsScreen } from '@/screens/Settings';
 import { ShipmentDetailsScreen } from '@/screens/ShipmentDetails';
 import { AddTrackingSheetScreen } from '@/screens/AddTrackingSheet';
+import { PlaceOrderScreen } from '@/screens/PlaceOrder';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -172,6 +173,11 @@ export const RootNavigator: React.FC = () => {
             headerShown: false,
             presentation: Platform.OS === 'ios' ? 'formSheet' : 'containedModal',
           }}
+        />
+        <Stack.Screen
+          name={ROUTES.PlaceOrder}
+          component={PlaceOrderScreen}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

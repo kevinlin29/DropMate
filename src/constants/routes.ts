@@ -8,6 +8,7 @@ export const ROUTES = {
   Profile: 'Profile',
   ShipmentDetails: 'ShipmentDetails',
   AddTracking: 'AddTracking',
+  PlaceOrder: 'PlaceOrder',
 } as const;
 
 export const TABS = {

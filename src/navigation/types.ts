@@ -17,7 +17,11 @@ export type RootStackParamList = {
   Profile: undefined;
   ShipmentDetails: { shipmentId: string };
   AddTracking: undefined;
+  PlaceOrder: undefined; // Add a new route to place shipments
 };
+
+
+
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
