@@ -21,6 +21,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FormTextInput } from '@/components/FormTextInput';
 import { useAuth } from '@/stores/useAuth';
+import { tokens } from '@/theme/tokens';
 
 const schema = z
   .object({
@@ -106,7 +107,7 @@ export const SignupScreen: React.FC<SignupProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: theme.semantic.background }]}
+      style={[styles.safeArea, { backgroundColor: tokens.colors.primaryBeige }]}
       edges={['top', 'left', 'right']}
     >
       <KeyboardAvoidingView
@@ -211,8 +212,8 @@ export const SignupScreen: React.FC<SignupProps> = ({ navigation }) => {
               style={({ pressed }) => [
                 styles.primaryButton,
                 {
-                  backgroundColor: theme.colors.primaryTeal,
-                  opacity: pressed || isLoading ? 0.8 : 1,
+                  backgroundColor: tokens.colors.packageOrange,
+                  opacity: pressed || isLoading ? 0.85 : 1,
                 },
               ]}
             >
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   termsText: {
-    fontSize: 12,
+    fontSize: 8,
     textAlign: 'center',
     lineHeight: 18,
   },

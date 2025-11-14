@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
+  Animated,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -22,17 +23,15 @@ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FormTextInput } from '@/components/FormTextInput';
 import { useAuth } from '@/stores/useAuth';
+import { tokens } from '@/theme/tokens';
 
+// -------------------- Zod Schema --------------------
 const schema = z.object({
   email: z.string().email('Enter a valid email address.').min(1, 'Email is required.'),
-  password: z
-    .string()
-    .min(6, 'Password must be at least 6 characters.')
-    .min(1, 'Password is required.'),
+  password: z.string().min(6, 'Password must be at least 6 characters.').min(1, 'Password is required.'),
 });
 
 type FormValues = z.infer<typeof schema>;
-
 type LoginProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen: React.FC<LoginProps> = ({ navigation }) => {
@@ -45,36 +44,50 @@ export const LoginScreen: React.FC<LoginProps> = ({ navigation }) => {
   const [isAppleAvailable, setIsAppleAvailable] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: 'onBlur',
   });
 
-  // Check if Apple Sign-In is available
-  React.useEffect(() => {
+  // -------------------- Animations --------------------
+  const fadeScreen = useRef(new Animated.Value(0)).current;
+  const fadeHeader = useRef(new Animated.Value(0)).current;
+  const fadeForm = useRef(new Animated.Value(0)).current;
+  const fadeButton = useRef(new Animated.Value(0)).current;
+  const fadeDivider = useRef(new Animated.Value(0)).current;
+  const fadeSSO = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
     const checkAppleAvailability = async () => {
       const available = await AppleAuthentication.isAvailableAsync();
       setIsAppleAvailable(available);
     };
     checkAppleAvailability();
+
+    Animated.sequence([
+      Animated.timing(fadeScreen, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(fadeHeader, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(fadeForm, { toValue: 1, duration: 350, useNativeDriver: true }),
+      Animated.timing(fadeButton, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(fadeDivider, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(fadeSSO, { toValue: 1, duration: 350, useNativeDriver: true }),
+    ]).start();
   }, []);
 
+  // Slide-up interpolator
+  const slide = (anim: Animated.Value) =>
+    anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] });
+
+  // -------------------- Handlers --------------------
   const isLoading = status === 'loading';
 
   const onSubmit = handleSubmit(async (values) => {
     try {
       await signIn(values);
-      // Navigation will happen automatically via auth state listener
-      // But we can also manually navigate if needed
       if (useAuth.getState().status === 'authenticated') {
         navigation.replace(ROUTES.Main);
       }
     } catch (err) {
-      // Error is already set in the auth store
       console.error('Sign in error:', err);
     }
   });
@@ -83,228 +96,319 @@ export const LoginScreen: React.FC<LoginProps> = ({ navigation }) => {
     setAppleLoading(true);
     try {
       await signInWithApple();
-      // Navigation will happen automatically via auth state listener
       if (useAuth.getState().status === 'authenticated') {
         navigation.replace(ROUTES.Main);
       }
     } catch (err) {
-      // Error is already set in the auth store
       console.error('Apple sign in error:', err);
     } finally {
       setAppleLoading(false);
     }
   };
 
+  // -------------------- UI --------------------
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: theme.semantic.background }]}
+    <SafeAreaView 
+      style={[styles.safeArea, { backgroundColor: tokens.colors.primaryBeige }]} 
       edges={['top', 'left', 'right']}
     >
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
+      <KeyboardAvoidingView 
+        style={styles.keyboardView} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.semantic.text }]}>{t('login.title')}</Text>
-          <Text style={[styles.subtitle, { color: theme.semantic.textMuted }]}>
-            Track all your parcels in one dashboard.
-          </Text>
-        </View>
-        <View style={styles.form}>
-          <Controller
-            name="email"
-            control={control}
-            defaultValue=""
-            render={({ field: { value, onChange, onBlur } }) => (
-              <FormTextInput
-                label={t('login.emailPlaceholder')}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                errorMessage={errors.email?.message}
-                leftAccessory={<Mail color={theme.semantic.textMuted} size={18} />}
-              />
-            )}
-          />
-          <Controller
-            name="password"
-            control={control}
-            defaultValue=""
-            render={({ field: { value, onChange, onBlur } }) => (
-              <FormTextInput
-                label={t('login.passwordPlaceholder')}
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                errorMessage={errors.password?.message}
-                leftAccessory={<Lock color={theme.semantic.textMuted} size={18} />}
-              />
-            )}
-          />
-          <Pressable
-            accessibilityRole="button"
-            style={styles.link}
-            onPress={() => navigation.navigate(ROUTES.ForgotPassword)}
-          >
-            <Text style={[styles.linkText, { color: theme.colors.accent }]}>{t('login.forgotPassword')}</Text>
-          </Pressable>
-          {error ? <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text> : null}
-          <Pressable
-            accessibilityRole="button"
-            disabled={isLoading}
-            onPress={onSubmit}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              {
-                backgroundColor: theme.colors.primaryTeal,
-                opacity: pressed || isLoading ? 0.8 : 1,
-              },
-            ]}
-          >
-            <Text style={styles.primaryLabel}>{isLoading ? 'Signing in…' : t('login.cta')}</Text>
-          </Pressable>
-        </View>
-        <View style={styles.divider}>
-          <View style={[styles.line, { backgroundColor: theme.semantic.border }]} />
-          <Text style={[styles.dividerText, { color: theme.semantic.textMuted }]}>or</Text>
-          <View style={[styles.line, { backgroundColor: theme.semantic.border }]} />
-        </View>
-        <View style={styles.ssoGroup}>
-          {/* Google Sign-In - Disabled for now */}
-          <Pressable
-            accessibilityRole="button"
-            style={({ pressed }) => [
-              styles.ssoButton,
-              {
-                borderColor: theme.semantic.border,
-                opacity: 0.5,
-              },
-            ]}
-            disabled={true}
-          >
-            <Chrome color={theme.colors.textPrimary} size={20} />
-            <Text style={[styles.ssoLabel, { color: theme.semantic.text }]}>Continue with Google</Text>
-          </Pressable>
-
-          {/* Apple Sign-In - Enabled on iOS */}
-          {isAppleAvailable && (
-            <Pressable
-              accessibilityRole="button"
-              onPress={handleAppleSignIn}
-              disabled={appleLoading || isLoading}
-              style={({ pressed }) => [
-                styles.ssoButton,
-                {
-                  borderColor: theme.semantic.border,
-                  opacity: pressed || appleLoading || isLoading ? 0.7 : 1,
-                },
-              ]}
-            >
-              <Apple color={theme.colors.textPrimary} size={20} />
-              <Text style={[styles.ssoLabel, { color: theme.semantic.text }]}>
-                {appleLoading ? 'Signing in…' : 'Continue with Apple'}
-              </Text>
-            </Pressable>
-          )}
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          style={styles.signUpLink}
-          onPress={() => navigation.navigate(ROUTES.Signup)}
+        <ScrollView 
+          contentContainerStyle={styles.content} 
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.linkText, { color: theme.colors.accent }]}>{t('login.signUp')}</Text>
-        </Pressable>
-      </ScrollView>
+          
+          {/* Full screen fade-in */}
+          <Animated.View style={{ opacity: fadeScreen, flex: 1 }}>
+
+            {/* Header */}
+            <Animated.View 
+              style={{ 
+                opacity: fadeHeader, 
+                transform: [{ translateY: slide(fadeHeader) }] 
+              }}
+            >
+              <View style={styles.header}>
+                <Text style={[styles.title, { color: theme.semantic.text }]}>
+                  {t('login.title')}
+                </Text>
+                <Text style={[styles.subtitle, { color: theme.semantic.textMuted }]}>
+                  Track all your parcels in one dashboard.
+                </Text>
+              </View>
+            </Animated.View>
+
+            {/* Form Section */}
+            <Animated.View 
+              style={{ 
+                opacity: fadeForm, 
+                transform: [{ translateY: slide(fadeForm) }] 
+              }}
+            >
+              <View style={styles.formContainer}>
+                {/* Email */}
+                <Controller
+                  name="email"
+                  control={control}
+                  defaultValue=""
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <FormTextInput
+                      label={t('login.emailPlaceholder')}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      errorMessage={errors.email?.message}
+                      leftAccessory={<Mail color={theme.semantic.textMuted} size={18} />}
+                    />
+                  )}
+                />
+
+                {/* Password */}
+                <Controller
+                  name="password"
+                  control={control}
+                  defaultValue=""
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <FormTextInput
+                      label={t('login.passwordPlaceholder')}
+                      secureTextEntry
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      errorMessage={errors.password?.message}
+                      leftAccessory={<Lock color={theme.semantic.textMuted} size={18} />}
+                    />
+                  )}
+                />
+
+                {/* Forgot password */}
+                <Pressable 
+                  style={styles.forgotLink} 
+                  onPress={() => navigation.navigate(ROUTES.ForgotPassword)}
+                >
+                  <Text style={[styles.linkText, { color: theme.colors.accent }]}>
+                    {t('login.forgotPassword')}
+                  </Text>
+                </Pressable>
+
+                {/* Error message */}
+                {error && (
+                  <Text style={[styles.error, { color: theme.colors.error }]}>
+                    {error}
+                  </Text>
+                )}
+              </View>
+            </Animated.View>
+
+            {/* Login Button */}
+            <Animated.View 
+              style={{ 
+                opacity: fadeButton, 
+                transform: [{ translateY: slide(fadeButton) }] 
+              }}
+            >
+              <Pressable
+                disabled={isLoading}
+                onPress={onSubmit}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  {
+                    backgroundColor: tokens.colors.packageOrange,
+                    opacity: pressed || isLoading ? 0.85 : 1,
+                  },
+                ]}
+              >
+                <Text style={styles.primaryLabel}>
+                  {isLoading ? 'Signing in…' : t('login.cta')}
+                </Text>
+              </Pressable>
+            </Animated.View>
+
+            {/* Divider */}
+            <Animated.View 
+              style={{ 
+                opacity: fadeDivider, 
+                transform: [{ translateY: slide(fadeDivider) }] 
+              }}
+            >
+              <View style={styles.divider}>
+                <View style={[styles.line, { backgroundColor: theme.semantic.border }]} />
+                <Text style={[styles.dividerText, { color: theme.semantic.textMuted }]}>
+                  or
+                </Text>
+                <View style={[styles.line, { backgroundColor: theme.semantic.border }]} />
+              </View>
+            </Animated.View>
+
+            {/* SSO Buttons */}
+            <Animated.View 
+              style={{ 
+                opacity: fadeSSO, 
+                transform: [{ translateY: slide(fadeSSO) }] 
+              }}
+            >
+              <View style={styles.ssoGroup}>
+                {/* Google */}
+                <Pressable
+                  disabled
+                  style={[
+                    styles.ssoButton,
+                    { borderColor: theme.semantic.border, opacity: 0.5 },
+                  ]}
+                >
+                  <Chrome color={theme.colors.textPrimary} size={20} />
+                  <Text style={[styles.ssoLabel, { color: theme.semantic.text }]}>
+                    Continue with Google
+                  </Text>
+                </Pressable>
+
+                {/* Apple */}
+                {isAppleAvailable && (
+                  <Pressable
+                    onPress={handleAppleSignIn}
+                    disabled={appleLoading || isLoading}
+                    style={({ pressed }) => [
+                      styles.ssoButton,
+                      {
+                        borderColor: theme.semantic.border,
+                        opacity: pressed || appleLoading || isLoading ? 0.7 : 1,
+                      },
+                    ]}
+                  >
+                    <Apple color={theme.colors.textPrimary} size={20} />
+                    <Text style={[styles.ssoLabel, { color: theme.semantic.text }]}>
+                      {appleLoading ? 'Signing in…' : 'Continue with Apple'}
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
+            </Animated.View>
+
+            {/* Signup link */}
+            <View style={styles.signUpContainer}>
+              <Text style={[styles.signUpPrompt, { color: theme.semantic.textMuted }]}>
+                Don't have an account?{' '}
+              </Text>
+              <Pressable onPress={() => navigation.navigate(ROUTES.Signup)}>
+                <Text style={[styles.linkText, { color: theme.colors.accent }]}>
+                  {t('login.signUp')}
+                </Text>
+              </Pressable>
+            </View>
+
+          </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
+  safeArea: { 
+    flex: 1 
   },
-  keyboardView: {
-    flex: 1,
+  keyboardView: { 
+    flex: 1 
   },
-  content: {
-    padding: 24,
-    gap: 24,
+  content: { 
+    flexGrow: 1,
+    padding: tokens.spacing.xl,
+    paddingTop: tokens.spacing.xxxl,
+    paddingBottom: tokens.spacing.xxxl,
+    gap: tokens.spacing.xl,
   },
-  header: {
-    gap: 8,
+  header: { 
+    gap: tokens.spacing.sm,
+    marginBottom: tokens.spacing.md,
   },
-  title: {
-    fontSize: 28,
+  title: { 
+    fontSize: 32, 
+    fontWeight: '700',
+    lineHeight: 40,
+    letterSpacing: -0.5,
+  },
+  subtitle: { 
+    fontSize: 17,
+    lineHeight: 24,
+    letterSpacing: -0.2,
+  },
+  formContainer: {
+    gap: tokens.spacing.md,
+  },
+  forgotLink: { 
+    alignSelf: 'flex-end',
+    paddingVertical: tokens.spacing.xxs,
+  },
+  linkText: { 
+    fontSize: 15, 
     fontWeight: '600',
   },
-  subtitle: {
-    fontSize: 16,
-  },
-  form: {
-    gap: 16,
-  },
-  link: {
-    alignSelf: 'flex-end',
-  },
-  linkText: {
+  error: { 
     fontSize: 14,
-    fontWeight: '500',
-  },
-  error: {
-    fontSize: 14,
-  },
-  demoHint: {
-    fontSize: 13,
-    alignSelf: 'center',
+    lineHeight: 20,
+    marginTop: tokens.spacing.xxs,
   },
   primaryButton: {
-    marginTop: 8,
-    paddingVertical: 16,
-    borderRadius: 16,
+    paddingVertical: tokens.spacing.lg,
+    borderRadius: tokens.radii.md,
     alignItems: 'center',
+    ...tokens.shadows.md,
   },
   primaryLabel: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    color: tokens.colors.surface,
+    fontSize: 17,
+    fontWeight: '700',
+    letterSpacing: -0.2,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: tokens.spacing.md,
+    marginVertical: tokens.spacing.xs,
   },
-  line: {
-    flex: 1,
+  line: { 
+    flex: 1, 
     height: StyleSheet.hairlineWidth,
   },
   dividerText: {
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
-  ssoGroup: {
-    gap: 12,
+  ssoGroup: { 
+    gap: tokens.spacing.sm,
   },
   ssoButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingVertical: 14,
-    gap: 12,
+    borderWidth: 1.5,
+    borderRadius: tokens.radii.md,
+    paddingVertical: tokens.spacing.md,
+    gap: tokens.spacing.sm,
+    backgroundColor: tokens.colors.surface,
   },
   ssoLabel: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
-  signUpLink: {
-    alignSelf: 'center',
+  signUpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: tokens.spacing.md,
+  },
+  signUpPrompt: {
+    fontSize: 15,
+    lineHeight: 20,
   },
 });

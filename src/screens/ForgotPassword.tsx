@@ -20,6 +20,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FormTextInput } from '@/components/FormTextInput';
 import { useAuth } from '@/stores/useAuth';
+import { tokens } from '@/theme/tokens';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email address.').min(1, 'Email is required.'),
@@ -88,7 +89,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordProps> = ({ navigation
   if (emailSent) {
     return (
       <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: theme.semantic.background }]}
+        style={[styles.safeArea, { backgroundColor: tokens.colors.primaryBeige }]}
         edges={['top', 'left', 'right']}
       >
         <View style={styles.content}>
@@ -130,7 +131,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordProps> = ({ navigation
                 style={({ pressed }) => [
                   styles.secondaryButton,
                   {
-                    borderColor: theme.semantic.border,
+                    backgroundColor: tokens.colors.packageOrange,
                     opacity: pressed || isLoading ? 0.8 : 1,
                   },
                 ]}
