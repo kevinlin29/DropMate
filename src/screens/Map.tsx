@@ -1,17 +1,33 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  Animated,
+  FlatList,
+  PanResponder,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MapPin, Package } from 'lucide-react-native';
 
 import { MapViewSafe } from '@/components/MapViewSafe';
-import { CourierCard } from '@/components/CourierCard';
-import { SearchBar } from '@/components/SearchBar';
-import { ShipmentCard } from '@/components/ShipmentCard';
 import { PlaceholderCard } from '@/components/PlaceholderCard';
-import { useShipmentsListQuery, useShipmentRouteQuery } from '@/hooks/useShipmentsQuery';
-import { useDriverLocationSimulator } from '@/hooks/useDriverLocationSimulator';
+import {
+  useShipmentsListQuery,
+  useShipmentRouteQuery,
+} from '@/hooks/useShipmentsQuery';
+// import { useDriverLocationSimulator } from '@/hooks/useDriverLocationSimulator';
 import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
 import { Shipment } from '@/types';
@@ -20,26 +36,81 @@ import { RootStackParamList } from '@/navigation/types';
 import { formatShipmentTitle } from '@/utils/format';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
 import { useDriver } from '@/stores/useDriver';
+import { SearchBar } from '@/components/SearchBar';
 
 export const MapScreen: React.FC = () => {
   const theme = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [search, setSearch] = useState('');
   const isDriverMode = useDriver((state) => state.isDriverMode);
   const setDriverMode = useDriver((state) => state.setDriverMode);
 
-  // Driver location simulator disabled for now
-  // Enable when needed: useDriverLocationSimulator(FEATURE_FLAGS.mapsEnabled);
   // useDriverLocationSimulator(false);
 
   const { data: shipments } = useShipmentsListQuery({ query: search });
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
 
-  // Auto-select first shipment
+  // ------------------------- Bottom sheet animation -------------------------
+
+  // 0 = collapsed at natural position
+  // NEGATIVE = expanded (moves sheet upward)
+  const EXPANDED_POSITION = -280;
+  const COLLAPSED_POSITION = 0;
+
+  const sheetTranslateY = useRef(new Animated.Value(40)).current;
+  const [sheetState, setSheetState] = useState<'collapsed' | 'expanded'>(
+    'collapsed',
+  );
+
+  // smooth initial slide-up
   useEffect(() => {
-    if (!shipments || shipments.length === 0) {
-      return;
-    }
+    Animated.spring(sheetTranslateY, {
+      toValue: COLLAPSED_POSITION,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 60,
+    }).start();
+  }, [sheetTranslateY]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        Math.abs(gestureState.dy) > 5,
+      onPanResponderGrant: () => {
+        sheetTranslateY.stopAnimation();
+        const base =
+          sheetState === 'expanded' ? EXPANDED_POSITION : COLLAPSED_POSITION;
+        sheetTranslateY.setOffset(base);
+        sheetTranslateY.setValue(0);
+      },
+      onPanResponderMove: (_, gestureState) => {
+        sheetTranslateY.setValue(gestureState.dy);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        sheetTranslateY.flattenOffset();
+        const { dy, vy } = gestureState;
+
+        const shouldExpand = dy < -60 || vy < -0.5;
+        const target = shouldExpand ? EXPANDED_POSITION : COLLAPSED_POSITION;
+
+        setSheetState(shouldExpand ? 'expanded' : 'collapsed');
+
+        Animated.spring(sheetTranslateY, {
+          toValue: target,
+          useNativeDriver: true,
+          friction: 8,
+          tension: 60,
+        }).start();
+      },
+    }),
+  ).current;
+
+  // ------------------------- Selection + data -------------------------
+
+  useEffect(() => {
+    if (!shipments || shipments.length === 0) return;
     const preferred = shipments.find((s) => s.status === 'OUT_FOR_DELIVERY');
     setSelectedId((current) => current ?? preferred?.id ?? shipments[0]?.id);
   }, [shipments]);
@@ -53,33 +124,36 @@ export const MapScreen: React.FC = () => {
     FEATURE_FLAGS.mapsEnabled ? selectedId : undefined,
   );
 
-  // Build complete route: origin → stops → destination
   const routeCoordinates = useMemo(() => {
     if (!selectedShipment) {
       return routeData?.coordinates || [];
     }
 
-    const coords = [];
+    const coords: { lat: number; lng: number }[] = [];
 
-    // Start with origin
     if (selectedShipment.origin) {
-      coords.push({ lat: selectedShipment.origin.lat, lng: selectedShipment.origin.lng });
+      coords.push({
+        lat: selectedShipment.origin.lat,
+        lng: selectedShipment.origin.lng,
+      });
     }
 
-    // Add all stops in order
     if (selectedShipment.stops && selectedShipment.stops.length > 0) {
-      const sortedStops = [...selectedShipment.stops].sort((a, b) => a.order - b.order);
+      const sortedStops = [...selectedShipment.stops].sort(
+        (a, b) => a.order - b.order,
+      );
       sortedStops.forEach((stop) => {
         coords.push({ lat: stop.lat, lng: stop.lng });
       });
     }
 
-    // End with destination
     if (selectedShipment.destination) {
-      coords.push({ lat: selectedShipment.destination.lat, lng: selectedShipment.destination.lng });
+      coords.push({
+        lat: selectedShipment.destination.lat,
+        lng: selectedShipment.destination.lng,
+      });
     }
 
-    // If we have the full route data from API, use that instead (more detailed)
     if (routeData?.coordinates && routeData.coordinates.length > 0) {
       return routeData.coordinates;
     }
@@ -88,11 +162,12 @@ export const MapScreen: React.FC = () => {
   }, [selectedShipment, routeData]);
 
   const latestCheckpoint = useMemo(() => {
-    if (!selectedShipment || !selectedShipment.checkpoints.length) return undefined;
+    if (!selectedShipment || !selectedShipment.checkpoints.length) {
+      return undefined;
+    }
     return selectedShipment.checkpoints[selectedShipment.checkpoints.length - 1];
   }, [selectedShipment]);
 
-  // Enhanced markers: origin, destination, waypoints, and driver location
   const markers = useMemo(() => {
     const markerList: Array<{
       id: string;
@@ -107,29 +182,32 @@ export const MapScreen: React.FC = () => {
       return markerList;
     }
 
-    // Add origin marker
     if (selectedShipment.origin) {
       markerList.push({
         id: 'origin',
-        coordinate: { lat: selectedShipment.origin.lat, lng: selectedShipment.origin.lng },
+        coordinate: {
+          lat: selectedShipment.origin.lat,
+          lng: selectedShipment.origin.lng,
+        },
         title: 'Origin',
         description: selectedShipment.origin.address,
-        type: 'origin' as const,
+        type: 'origin',
       });
     }
 
-    // Add destination marker
     if (selectedShipment.destination) {
       markerList.push({
         id: 'destination',
-        coordinate: { lat: selectedShipment.destination.lat, lng: selectedShipment.destination.lng },
+        coordinate: {
+          lat: selectedShipment.destination.lat,
+          lng: selectedShipment.destination.lng,
+        },
         title: 'Destination',
         description: selectedShipment.destination.address,
-        type: 'destination' as const,
+        type: 'destination',
       });
     }
 
-    // Add waypoint markers (stops)
     if (selectedShipment.stops && selectedShipment.stops.length > 0) {
       selectedShipment.stops.forEach((stop) => {
         markerList.push({
@@ -137,58 +215,39 @@ export const MapScreen: React.FC = () => {
           coordinate: { lat: stop.lat, lng: stop.lng },
           title: `Stop ${stop.order}${stop.completed ? ' (Completed)' : ''}`,
           description: stop.address,
-          type: 'waypoint' as const,
+          type: 'waypoint',
           completed: stop.completed,
         });
       });
     }
 
-    // Add driver location marker (static position from package data)
     if (selectedShipment.driverLocation) {
       markerList.push({
         id: 'driver',
-        coordinate: { lat: selectedShipment.driverLocation.lat, lng: selectedShipment.driverLocation.lng },
+        coordinate: {
+          lat: selectedShipment.driverLocation.lat,
+          lng: selectedShipment.driverLocation.lng,
+        },
         title: 'Driver',
         description: 'Current location',
-        type: 'driver' as const,
+        type: 'driver',
       });
     }
 
     return markerList;
   }, [selectedShipment]);
 
-  const handleOpenDetails = useCallback((shipmentId: string) => {
-    navigation.navigate(ROUTES.ShipmentDetails, { shipmentId });
-  }, [navigation]);
+  const handleOpenDetails = useCallback(
+    (shipmentId: string) => {
+      navigation.navigate(ROUTES.ShipmentDetails, { shipmentId });
+    },
+    [navigation],
+  );
 
-  const renderShipment = useCallback(({ item }: { item: Shipment }) => (
-    <Pressable
-      onPress={() => setSelectedId(item.id)}
-      style={({ pressed }) => [
-        styles.shipmentChip,
-        {
-          borderColor: item.id === selectedId 
-            ? (theme.semantic.text || tokens.colors.textPrimary)
-            : (theme.semantic.border || tokens.colors.border),
-          backgroundColor: item.id === selectedId 
-            ? tokens.colors.cardBackgroundYellow
-            : (theme.semantic.surface || tokens.colors.surface),
-          opacity: pressed ? 0.9 : 1,
-        },
-      ]}
-    >
-      <Text style={[styles.chipTitle, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-        {formatShipmentTitle(item)}
-      </Text>
-      <Text style={[styles.chipStatus, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-        {item.status}
-      </Text>
-    </Pressable>
-  ), [selectedId, theme.semantic]);
+  // ------------------------- Helper functions -------------------------
 
-  // Helper functions for CourierCard
   const getProgress = (shipment: Shipment) => {
-    const statusProgress = {
+    const statusProgress: Record<string, number> = {
       CREATED: 20,
       IN_TRANSIT: 60,
       OUT_FOR_DELIVERY: 80,
@@ -200,11 +259,12 @@ export const MapScreen: React.FC = () => {
 
   const getShipmentLocations = (shipment: Shipment) => {
     const checkpoints = shipment.checkpoints;
-    if (checkpoints.length === 0) return { origin: 'N/A', destination: 'N/A' };
-    
+    if (checkpoints.length === 0)
+      return { origin: 'N/A', destination: 'N/A' };
+
     const first = checkpoints[0];
     const last = checkpoints[checkpoints.length - 1];
-    
+
     return {
       origin: first.location || 'Origin',
       destination: last.location || 'Destination',
@@ -213,8 +273,57 @@ export const MapScreen: React.FC = () => {
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
   };
+
+  const renderShipment = useCallback(
+    ({ item }: { item: Shipment }) => (
+      <Pressable
+        onPress={() => setSelectedId(item.id)}
+        style={({ pressed }) => [
+          styles.shipmentChip,
+          {
+            borderColor:
+              item.id === selectedId
+                ? theme.semantic.text || tokens.colors.textPrimary
+                : theme.semantic.border || tokens.colors.border,
+            backgroundColor:
+              item.id === selectedId
+                ? tokens.colors.cardBackgroundYellow
+                : theme.semantic.surface || tokens.colors.surface,
+            opacity: pressed ? 0.9 : 1,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.chipTitle,
+            { color: theme.semantic.text || tokens.colors.textPrimary },
+          ]}
+        >
+          {formatShipmentTitle(item)}
+        </Text>
+        <Text
+          style={[
+            styles.chipStatus,
+            {
+              color:
+                theme.semantic.textMuted || tokens.colors.textSecondary,
+            },
+          ]}
+        >
+          {item.status}
+        </Text>
+      </Pressable>
+    ),
+    [selectedId, theme.semantic],
+  );
+
+  // ------------------------------ Render ------------------------------
 
   return (
     <SafeAreaView
@@ -225,7 +334,12 @@ export const MapScreen: React.FC = () => {
         {FEATURE_FLAGS.mapsEnabled ? (
           <MapViewSafe routeCoordinates={routeCoordinates} markers={markers} />
         ) : (
-          <View style={[styles.placeholderWrapper, { backgroundColor: tokens.colors.background }]}>
+          <View
+            style={[
+              styles.placeholderWrapper,
+              { backgroundColor: tokens.colors.background },
+            ]}
+          >
             <PlaceholderCard
               title="Live map coming soon"
               description="We're finishing the integration. You'll see courier locations and ETAs here once it's ready."
@@ -235,25 +349,64 @@ export const MapScreen: React.FC = () => {
         )}
       </View>
 
-      {/* Bottom Sheet */}
-      <View style={[styles.bottomSheet, { backgroundColor: theme.semantic.surface || tokens.colors.surface }]}>
-        <View style={[styles.userModeToggle, { borderBottomColor: theme.semantic.border || tokens.colors.border }]}>
+      {/* Draggable Bottom Sheet */}
+      <Animated.View
+        style={[
+          styles.bottomSheet,
+          {
+            backgroundColor:
+              theme.semantic.surface || tokens.colors.surface,
+            transform: [{ translateY: sheetTranslateY }],
+          },
+        ]}
+      >
+        {/* Header row also acts as drag handle */}
+        <View
+          style={[
+            styles.userModeToggle,
+            {
+              borderBottomColor:
+                theme.semantic.border || tokens.colors.border,
+            },
+          ]}
+          {...panResponder.panHandlers}
+        >
           <View style={styles.headerLeft}>
-            <Package color={theme.semantic.text || tokens.colors.textPrimary} size={20} strokeWidth={2} />
-            <Text style={[styles.headerTitle, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+            <Package
+              color={theme.semantic.text || tokens.colors.textPrimary}
+              size={20}
+              strokeWidth={2}
+            />
+            <Text
+              style={[
+                styles.headerTitle,
+                { color: theme.semantic.text || tokens.colors.textPrimary },
+              ]}
+            >
               Track Package
             </Text>
           </View>
           <View style={styles.toggleContainer}>
-            <Text style={[styles.modeLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+            <Text
+              style={[
+                styles.modeLabel,
+                {
+                  color:
+                    theme.semantic.textMuted ||
+                    tokens.colors.textSecondary,
+                },
+              ]}
+            >
               Driver Mode
             </Text>
             <Switch
               value={isDriverMode}
               onValueChange={setDriverMode}
-              trackColor={{ 
-                false: theme.semantic.border || tokens.colors.border, 
-                true: theme.semantic.text || tokens.colors.textPrimary 
+              trackColor={{
+                false:
+                  theme.semantic.border || tokens.colors.border,
+                true:
+                  theme.semantic.text || tokens.colors.textPrimary,
               }}
               thumbColor={tokens.colors.surface}
             />
@@ -261,50 +414,109 @@ export const MapScreen: React.FC = () => {
         </View>
 
         {isDriverMode ? (
-          /* Driver Mode Content */
+          // ---------------------- Driver Mode ----------------------
           <View style={styles.driverContent}>
-            <Text style={[styles.driverMessage, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+            <Text
+              style={[
+                styles.driverMessage,
+                { color: theme.semantic.text || tokens.colors.textPrimary },
+              ]}
+            >
               Driver mode: View all deliveries
             </Text>
-            <ScrollView style={styles.driverList} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={styles.driverList}
+              showsVerticalScrollIndicator={false}
+            >
               {shipments && shipments.length > 0 ? (
                 shipments
-                  .filter((s) => s.status === 'OUT_FOR_DELIVERY' || s.status === 'IN_TRANSIT')
+                  .filter(
+                    (s) =>
+                      s.status === 'OUT_FOR_DELIVERY' ||
+                      s.status === 'IN_TRANSIT',
+                  )
                   .map((shipment) => (
                     <Pressable
                       key={shipment.id}
-                      style={[styles.deliveryCard, {
-                        backgroundColor: theme.semantic.surface || tokens.colors.surface,
-                        borderColor: theme.semantic.border || tokens.colors.border,
-                      }]}
+                      style={[
+                        styles.deliveryCard,
+                        {
+                          backgroundColor:
+                            theme.semantic.surface ||
+                            tokens.colors.surface,
+                          borderColor:
+                            theme.semantic.border ||
+                            tokens.colors.border,
+                        },
+                      ]}
                       onPress={() => handleOpenDetails(shipment.id)}
                     >
                       <View style={styles.deliveryCardHeader}>
-                        <Text style={[styles.deliveryTitle, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                        <Text
+                          style={[
+                            styles.deliveryTitle,
+                            {
+                              color:
+                                theme.semantic.text ||
+                                tokens.colors.textPrimary,
+                            },
+                          ]}
+                        >
                           #{formatShipmentTitle(shipment)}
                         </Text>
-                        <View style={[
-                          styles.statusBadge,
-                          { 
-                            backgroundColor: shipment.status === 'OUT_FOR_DELIVERY' 
-                              ? tokens.colors.statusOutForDelivery
-                              : tokens.colors.statusInTransit
-                          }
-                        ]}>
+                        <View
+                          style={[
+                            styles.statusBadge,
+                            {
+                              backgroundColor:
+                                shipment.status === 'OUT_FOR_DELIVERY'
+                                  ? tokens.colors.statusOutForDelivery
+                                  : tokens.colors.statusInTransit,
+                            },
+                          ]}
+                        >
                           <Text style={styles.statusText}>
-                            {shipment.status === 'OUT_FOR_DELIVERY' ? 'URGENT' : 'ACTIVE'}
+                            {shipment.status === 'OUT_FOR_DELIVERY'
+                              ? 'URGENT'
+                              : 'ACTIVE'}
                           </Text>
                         </View>
                       </View>
-                      <Text style={[styles.deliveryLocation, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                        {shipment.checkpoints[shipment.checkpoints.length - 1]?.location || 'Unknown location'}
+                      <Text
+                        style={[
+                          styles.deliveryLocation,
+                          {
+                            color:
+                              theme.semantic.textMuted ||
+                              tokens.colors.textSecondary,
+                          },
+                        ]}
+                      >
+                        {shipment.checkpoints[
+                          shipment.checkpoints.length - 1
+                        ]?.location || 'Unknown location'}
                       </Text>
                     </Pressable>
                   ))
               ) : (
                 <View style={styles.emptyDriver}>
-                  <Package size={48} color={theme.semantic.textMuted || tokens.colors.textMuted} />
-                  <Text style={[styles.emptyText, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                  <Package
+                    size={48}
+                    color={
+                      theme.semantic.textMuted ||
+                      tokens.colors.textMuted
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.emptyText,
+                      {
+                        color:
+                          theme.semantic.textMuted ||
+                          tokens.colors.textSecondary,
+                      },
+                    ]}
+                  >
                     No active deliveries
                   </Text>
                 </View>
@@ -312,17 +524,15 @@ export const MapScreen: React.FC = () => {
             </ScrollView>
           </View>
         ) : (
-          /* User Mode Content - All in One Card */
+          // ---------------------- User Mode ----------------------
           <View style={styles.userModeContent}>
-            {/* Search Bar */}
             <SearchBar
               value={search}
               onChangeText={setSearch}
               placeholder="Search deliveries"
               style={styles.searchBarInCard}
             />
-            
-            {/* Horizontal Shipment Chips */}
+
             <FlatList
               horizontal
               data={shipments}
@@ -331,53 +541,115 @@ export const MapScreen: React.FC = () => {
               renderItem={renderShipment}
               showsHorizontalScrollIndicator={false}
             />
-            
-            {/* Selected Shipment Details */}
+
             {selectedShipment && (
               <View style={styles.selectedShipmentWrapper}>
                 {(() => {
                   const locations = getShipmentLocations(selectedShipment);
-                  const firstCheckpoint = selectedShipment.checkpoints[0];
-                  const lastCheckpoint = selectedShipment.checkpoints[selectedShipment.checkpoints.length - 1];
-                  
+                  const firstCheckpoint =
+                    selectedShipment.checkpoints[0];
+                  const lastCheckpoint =
+                    selectedShipment.checkpoints[
+                      selectedShipment.checkpoints.length - 1
+                    ];
+
                   return (
                     <Pressable
-                      onPress={() => handleOpenDetails(selectedShipment.id)}
+                      onPress={() =>
+                        handleOpenDetails(selectedShipment.id)
+                      }
                       style={styles.selectedShipmentCard}
                     >
-                      {/* Tracking Number and Status */}
                       <View style={styles.selectedHeader}>
-                        <Text style={[styles.selectedTrackingNumber, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                        <Text
+                          style={[
+                            styles.selectedTrackingNumber,
+                            {
+                              color:
+                                theme.semantic.text ||
+                                tokens.colors.textPrimary,
+                            },
+                          ]}
+                        >
                           #{selectedShipment.trackingNo}
                         </Text>
-                        <View style={[
-                          styles.selectedStatusBadge,
-                          { backgroundColor: tokens.colors.statusInTransit }
-                        ]}>
+                        <View
+                          style={[
+                            styles.selectedStatusBadge,
+                            {
+                              backgroundColor:
+                                tokens.colors.statusInTransit,
+                            },
+                          ]}
+                        >
                           <Text style={styles.selectedStatusText}>
-                            {selectedShipment.status === 'IN_TRANSIT' ? 'In Transit' : selectedShipment.status.replace('_', ' ')}
+                            {selectedShipment.status === 'IN_TRANSIT'
+                              ? 'In Transit'
+                              : selectedShipment.status.replace(
+                                  '_',
+                                  ' ',
+                                )}
                           </Text>
                         </View>
                       </View>
 
-                      {/* Location Info */}
-                      <Text style={[styles.selectedLocation, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                      <Text
+                        style={[
+                          styles.selectedLocation,
+                          {
+                            color:
+                              theme.semantic.text ||
+                              tokens.colors.textPrimary,
+                          },
+                        ]}
+                      >
                         {lastCheckpoint?.label || 'Processing'}
                       </Text>
-                      <Text style={[styles.selectedLocationDetail, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                        {lastCheckpoint?.location || locations.origin} · {lastCheckpoint ? formatDate(lastCheckpoint.timeIso) : 'N/A'}
+                      <Text
+                        style={[
+                          styles.selectedLocationDetail,
+                          {
+                            color:
+                              theme.semantic.textMuted ||
+                              tokens.colors.textSecondary,
+                          },
+                        ]}
+                      >
+                        {lastCheckpoint?.location || locations.origin} ·{' '}
+                        {lastCheckpoint
+                          ? formatDate(lastCheckpoint.timeIso)
+                          : 'N/A'}
                       </Text>
 
-                      {/* Progress Bar */}
                       <View style={styles.selectedProgress}>
-                        <View style={[styles.progressTrack, { backgroundColor: theme.semantic.border || tokens.colors.border }]}>
-                          <View style={[styles.progressStart, { backgroundColor: tokens.colors.statusInTransit }]} />
+                        <View
+                          style={[
+                            styles.progressTrack,
+                            {
+                              backgroundColor:
+                                theme.semantic.border ||
+                                tokens.colors.border,
+                            },
+                          ]}
+                        >
+                          <View
+                            style={[
+                              styles.progressStart,
+                              {
+                                backgroundColor:
+                                  tokens.colors.statusInTransit,
+                              },
+                            ]}
+                          />
                           <View
                             style={[
                               styles.progressBar,
-                              { 
-                                width: `${getProgress(selectedShipment)}%`, 
-                                backgroundColor: tokens.colors.statusInTransit 
+                              {
+                                width: `${getProgress(
+                                  selectedShipment,
+                                )}%`,
+                                backgroundColor:
+                                  tokens.colors.statusInTransit,
                               },
                             ]}
                           />
@@ -385,9 +657,16 @@ export const MapScreen: React.FC = () => {
                             style={[
                               styles.progressEnd,
                               {
-                                backgroundColor: getProgress(selectedShipment) === 100 ? tokens.colors.statusInTransit : 'transparent',
-                                borderColor: tokens.colors.statusInTransit,
-                                borderWidth: 2,
+                                backgroundColor:
+                                  getProgress(selectedShipment) === 100
+                                    ? tokens.colors.statusInTransit
+                                    : 'transparent',
+                                borderColor:
+                                  tokens.colors.statusInTransit,
+                                borderWidth:
+                                  getProgress(selectedShipment) === 100
+                                    ? 2
+                                    : 2,
                               },
                             ]}
                           />
@@ -400,7 +679,7 @@ export const MapScreen: React.FC = () => {
             )}
           </View>
         )}
-      </View>
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -418,6 +697,10 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.xl,
   },
   bottomSheet: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     padding: tokens.spacing.lg,
     gap: tokens.spacing.md,
     borderTopLeftRadius: tokens.radii.xl,
@@ -448,8 +731,7 @@ const styles = StyleSheet.create({
   modeLabel: {
     ...tokens.typography.captionSemibold,
   },
-  
-  // User Mode Content - All sections in one card
+
   userModeContent: {
     gap: tokens.spacing.md,
   },
@@ -476,8 +758,7 @@ const styles = StyleSheet.create({
     ...tokens.typography.caption,
     textTransform: 'uppercase',
   },
-  
-  // Selected Shipment Card
+
   selectedShipmentWrapper: {
     marginTop: tokens.spacing.xs,
   },
@@ -541,8 +822,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
   },
-  
-  // Driver Mode Styles
+
   driverContent: {
     flex: 1,
     gap: tokens.spacing.sm,
