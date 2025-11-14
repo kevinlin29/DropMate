@@ -218,14 +218,14 @@ export const MapScreen: React.FC = () => {
 
   return (
     <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: tokens.colors.background }]}
+      style={[styles.safeArea, { backgroundColor: theme.semantic.background || tokens.colors.primaryBeige }]}
       edges={['top', 'left', 'right']}
     >
       <View style={styles.mapContainer}>
         {FEATURE_FLAGS.mapsEnabled ? (
           <MapViewSafe routeCoordinates={routeCoordinates} markers={markers} />
         ) : (
-          <View style={[styles.placeholderWrapper, { backgroundColor: tokens.colors.background }]}>
+          <View style={[styles.placeholderWrapper, { backgroundColor: theme.semantic.background || tokens.colors.primaryBeige }]}>
             <PlaceholderCard
               title="Live map coming soon"
               description="We're finishing the integration. You'll see courier locations and ETAs here once it's ready."
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.md,
   },
   searchBarInCard: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: tokens.colors.background,
     shadowOpacity: 0,
     elevation: 0,
   },

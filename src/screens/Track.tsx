@@ -70,14 +70,28 @@ export const TrackScreen: React.FC = () => {
     return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
+  // Get variant (card background color) based on status
+  const getVariant = (status: string): 'green' | 'yellow' | 'blue' | 'red' => {
+    switch (status) {
+      case 'OUT_FOR_DELIVERY':
+        return 'blue'; // Blue background for out for delivery
+      case 'IN_TRANSIT':
+        return 'green'; // Green background for in transit
+      case 'DELIVERED':
+        return 'green'; // Green background for delivered
+      case 'EXCEPTION':
+        return 'red'; // Red background for exceptions
+      default:
+        return 'yellow'; // Yellow background for others (CREATED, etc)
+    }
+  };
+
   const renderItem = useCallback<ListRenderItem<Shipment>>(
     ({ item }) => {
       const locations = getShipmentLocations(item);
       const firstCheckpoint = item.checkpoints[0];
       const lastCheckpoint = item.checkpoints[item.checkpoints.length - 1];
-      
-      // Use green for delivered, yellow for others
-      const variant = item.status === 'DELIVERED' ? 'green' : 'yellow';
+      const variant = getVariant(item.status);
       
       return (
         <CourierCard
@@ -98,7 +112,7 @@ export const TrackScreen: React.FC = () => {
 
   return (
     <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: theme.semantic.background || tokens.colors.background }]}
+      style={[styles.safeArea, { backgroundColor: theme.semantic.background || tokens.colors.primaryBeige }]}
       edges={['top', 'left', 'right']}
     >
       <View style={styles.container}>

@@ -20,7 +20,7 @@ export type CourierCardProps = {
   location?: string;
   updatedIso?: string;
   onPress?: () => void;
-  variant?: 'yellow' | 'blue' | 'white' | 'green'; // Added green for delivered
+  variant?: 'yellow' | 'blue' | 'white' | 'green' | 'red'; // Added red for exceptions
 };
 
 export const CourierCard: React.FC<CourierCardProps> = ({
@@ -32,7 +32,7 @@ export const CourierCard: React.FC<CourierCardProps> = ({
   destinationDate,
   progress,
   onPress,
-  variant = 'white', // ADD THIS LINE - it was missing!
+  variant = 'white',
 }) => {
   const theme = useTheme();
 
@@ -81,6 +81,8 @@ export const CourierCard: React.FC<CourierCardProps> = ({
         return tokens.colors.cardBackgroundBlue;
       case 'green':
         return tokens.colors.cardBackgroundGreen;
+      case 'red':
+        return tokens.colors.cardBackgroundRed;
       case 'white':
       default:
         return theme.semantic.surface || tokens.colors.surface;
