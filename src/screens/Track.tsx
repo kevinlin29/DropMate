@@ -71,20 +71,18 @@ export const TrackScreen: React.FC = () => {
   };
 
   // Get variant (card background color) based on status
-  const getVariant = (status: string): 'green' | 'yellow' | 'blue' | 'red' => {
+  const getVariant = useCallback((status: string): 'green' | 'yellow' | 'blue' | 'red' => {
     switch (status) {
       case 'OUT_FOR_DELIVERY':
-        return 'blue'; // Blue background for out for delivery
-      case 'IN_TRANSIT':
-        return 'green'; // Green background for in transit
+        return 'yellow'; // Yellow background for out for delivery
       case 'DELIVERED':
         return 'green'; // Green background for delivered
       case 'EXCEPTION':
         return 'red'; // Red background for exceptions
       default:
-        return 'yellow'; // Yellow background for others (CREATED, etc)
+        return 'blue'; // Blue background for others (CREATED, etc)
     }
-  };
+  }, []);
 
   const renderItem = useCallback<ListRenderItem<Shipment>>(
     ({ item }) => {
@@ -107,7 +105,7 @@ export const TrackScreen: React.FC = () => {
         />
       );
     },
-    [navigation],
+    [navigation, getVariant],
   );
 
   return (

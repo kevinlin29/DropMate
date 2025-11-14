@@ -77,15 +77,13 @@ export const HomeScreen: React.FC = () => {
   const getVariant = (status: string): 'green' | 'yellow' | 'blue' | 'red' => {
     switch (status) {
       case 'OUT_FOR_DELIVERY':
-        return 'blue';
-      case 'IN_TRANSIT':
-        return 'green';
+        return 'yellow';
       case 'EXCEPTION':
         return 'red';
       case 'DELIVERED':
         return 'green';
       default:
-        return 'yellow';
+        return 'blue';
     }
   };
 
