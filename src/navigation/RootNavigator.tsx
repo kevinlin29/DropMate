@@ -9,6 +9,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
 import { ROUTES, TABS } from '@/constants/routes';
 import { RootStackParamList, BottomTabParamList } from './types';
+
+// Screens
 import { SplashScreen } from '@/screens/Splash';
 import { TutorialScreen } from '@/screens/Tutorial';
 import { LoginScreen } from '@/screens/Login';
@@ -17,16 +19,28 @@ import { ForgotPasswordScreen } from '@/screens/ForgotPassword';
 import { HomeScreen } from '@/screens/Home';
 import { TrackScreen } from '@/screens/Track';
 import { MapScreen } from '@/screens/Map';
-import { ProfileScreen } from '@/screens/Profile';
 import { SettingsScreen } from '@/screens/Settings';
+import { ProfileScreen } from '@/screens/Profile';
 import { ShipmentDetailsScreen } from '@/screens/ShipmentDetails';
 import { AddTrackingSheetScreen } from '@/screens/AddTrackingSheet';
 import { PlaceOrderScreen } from '@/screens/PlaceOrder';
 
+// Transitions
+import {
+  PremiumSlideRight,
+  PremiumSlideBottom,
+  PremiumFade,
+  PremiumModal,
+  NoAnimation,
+} from '@/navigation/transitions';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-const TabNavigator: React.FC = () => {
+// ----------------------
+// BOTTOM TAB NAVIGATOR
+// ----------------------
+const BottomTabs = () => {
   const theme = useTheme();
 
   return (
@@ -48,76 +62,27 @@ const TabNavigator: React.FC = () => {
           fontWeight: '500',
           marginTop: 4,
         },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color }) => {
           let IconComponent;
           switch (route.name) {
-            case 'HomeTab':
-              IconComponent = Home;
-              break;
-            case 'TrackTab':
-              IconComponent = Search;
-              break;
-            case 'MapTab':
-              IconComponent = MapIcon;
-              break;
-            case 'SettingsTab':
-            default:
-              IconComponent = SettingsIcon;
-              break;
+            case 'HomeTab': IconComponent = Home; break;
+            case 'TrackTab': IconComponent = Search; break;
+            case 'MapTab': IconComponent = MapIcon; break;
+            default: IconComponent = SettingsIcon;
           }
 
-          // Active tab gets a white background circle
           if (focused) {
             return (
               <View style={styles.activeIconContainer}>
-                <IconComponent 
-                  color={theme.semantic.text || tokens.colors.textPrimary} 
-                  size={24} 
-                  strokeWidth={2}
-                />
+                <IconComponent color={theme.semantic.text} size={24} strokeWidth={2} />
               </View>
             );
           }
 
-          // Inactive tabs just show the icon
-          return (
-            <IconComponent 
-              color={color} 
-              size={24} 
-              strokeWidth={2}
-            />
-          );
+          return <IconComponent color={color} size={24} strokeWidth={2} />;
         },
-        tabBarLabel: ({ focused, color }) => {
-          // Only show label for inactive tabs
-          if (focused) {
-            return null;
-          }
-
-          let label;
-          switch (route.name) {
-            case 'HomeTab':
-              label = 'Home';
-              break;
-            case 'TrackTab':
-              label = 'Track';
-              break;
-            case 'MapTab':
-              label = 'Map';
-              break;
-            case 'SettingsTab':
-              label = 'Settings';
-              break;
-            default:
-              label = route.name;
-          }
-
-          return (
-            <Text style={[styles.tabLabel, { color }]}>
-              {label}
-            </Text>
-          );
-        },
+        tabBarLabel: ({ focused, color }) =>
+          focused ? null : <Text style={[styles.tabLabel, { color }]}>{route.name.replace('Tab','')}</Text>,
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeScreen} />
@@ -128,7 +93,10 @@ const TabNavigator: React.FC = () => {
   );
 };
 
-export const RootNavigator: React.FC = () => {
+// ----------------------
+// ROOT NAVIGATOR
+// ----------------------
+export const RootNavigator = () => {
   const theme = useTheme();
 
   const navigationTheme = useMemo(() => {
@@ -141,44 +109,37 @@ export const RootNavigator: React.FC = () => {
         card: theme.semantic.surface,
         border: theme.semantic.border,
         text: theme.semantic.text,
-        primary: theme.semantic.accent || tokens.colors.textPrimary,
-        notification: theme.semantic.accent || tokens.colors.accent,
       },
     };
   }, [theme]);
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Stack.Navigator initialRouteName={ROUTES.Splash} screenOptions={{ headerShown: false }}>
-        <Stack.Screen name={ROUTES.Splash} component={SplashScreen} />
-        <Stack.Screen name={ROUTES.Tutorial} component={TutorialScreen} />
-        <Stack.Screen name={ROUTES.Login} component={LoginScreen} />
-        <Stack.Screen name={ROUTES.Signup} component={SignupScreen} />
-        <Stack.Screen name={ROUTES.ForgotPassword} component={ForgotPasswordScreen} />
-        <Stack.Screen name={ROUTES.Main} component={TabNavigator} />
-        <Stack.Screen
-          name={ROUTES.Profile}
-          component={ProfileScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.ShipmentDetails}
-          component={ShipmentDetailsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={ROUTES.AddTracking}
-          component={AddTrackingSheetScreen}
-          options={{
-            headerShown: false,
-            presentation: Platform.OS === 'ios' ? 'formSheet' : 'containedModal',
-          }}
-        />
-        <Stack.Screen
-          name={ROUTES.PlaceOrder}
-          component={PlaceOrderScreen}
-          options={{ headerShown: false }}
-        />
+      <Stack.Navigator
+        initialRouteName={ROUTES.Splash}
+        screenOptions={{
+          headerShown: false,
+          ...PremiumSlideRight,
+        }}
+      >
+        <Stack.Screen name={ROUTES.Splash} component={SplashScreen} options={NoAnimation} />
+        <Stack.Screen name={ROUTES.Tutorial} component={TutorialScreen} options={PremiumFade} />
+
+        {/* AUTH FLOW */}
+        <Stack.Screen name={ROUTES.Login} component={LoginScreen} options={PremiumFade} />
+        <Stack.Screen name={ROUTES.Signup} component={SignupScreen} options={PremiumFade} />
+        <Stack.Screen name={ROUTES.ForgotPassword} component={ForgotPasswordScreen} options={PremiumFade} />
+
+        {/* TABS */}
+        <Stack.Screen name={ROUTES.Main} component={BottomTabs} options={PremiumSlideRight} />
+
+        {/* PUSH SCREENS */}
+        <Stack.Screen name={ROUTES.Profile} component={ProfileScreen} options={PremiumSlideRight} />
+        <Stack.Screen name={ROUTES.ShipmentDetails} component={ShipmentDetailsScreen} options={PremiumSlideRight} />
+
+        {/* MODALS + SHEETS */}
+        <Stack.Screen name={ROUTES.AddTracking} component={AddTrackingSheetScreen} options={PremiumModal} />
+        <Stack.Screen name={ROUTES.PlaceOrder} component={PlaceOrderScreen} options={PremiumSlideBottom} />
       </Stack.Navigator>
     </NavigationContainer>
   );
