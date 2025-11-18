@@ -3,6 +3,7 @@ export const colors = {
   primaryBeige: '#F5F1EB',
   primaryCream: '#FFF9F0',
   primaryBrown: '#8B5A3C',
+  primaryTeal: '#00C2FF', // Using accent color as primaryTeal
   
   // Package colors for illustrations
   packageOrange: '#FFBE5C',

@@ -20,7 +20,8 @@ import { ROUTES } from '@/constants/routes';
 import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FormTextInput } from '@/components/FormTextInput';
-import { useAuth } from '@/stores/useAuth';
+import { useAppDispatch, useAppSelector } from '@/stores/hooks';
+import { signUp, signInWithApple } from '@/stores/authSlice';
 import { tokens } from '@/theme/tokens';
 
 const schema = z
@@ -44,10 +45,9 @@ type SignupProps = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 export const SignupScreen: React.FC<SignupProps> = ({ navigation }) => {
   const theme = useTheme();
-  const signUp = useAuth((state) => state.signUp);
-  const signInWithApple = useAuth((state) => state.signInWithApple);
-  const status = useAuth((state) => state.status);
-  const error = useAuth((state) => state.error);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector((state) => state.auth.status);
+  const error = useAppSelector((state) => state.auth.error);
 
   const [isAppleAvailable, setIsAppleAvailable] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
@@ -74,13 +74,13 @@ export const SignupScreen: React.FC<SignupProps> = ({ navigation }) => {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await signUp({
+      const result = await dispatch(signUp({
         email: values.email,
         password: values.password,
         displayName: values.displayName,
-      });
+      }) as any);
       // Navigation will happen automatically via auth state listener
-      if (useAuth.getState().status === 'authenticated') {
+      if (signUp.fulfilled.match(result)) {
         navigation.replace(ROUTES.Main);
       }
     } catch (err) {
@@ -92,9 +92,9 @@ export const SignupScreen: React.FC<SignupProps> = ({ navigation }) => {
   const handleAppleSignIn = async () => {
     setAppleLoading(true);
     try {
-      await signInWithApple();
+      const result = await dispatch(signInWithApple() as any);
       // Navigation will happen automatically via auth state listener
-      if (useAuth.getState().status === 'authenticated') {
+      if (signInWithApple.fulfilled.match(result)) {
         navigation.replace(ROUTES.Main);
       }
     } catch (err) {

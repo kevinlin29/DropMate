@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { BASE_URL, TIMEOUT } from './env';
-import { useAuth } from '@/stores/useAuth';
+import { store } from '@/stores';
+import { getIdToken, signOut } from '@/stores/authSlice';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -11,8 +12,9 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
-      // Get the current Firebase ID token
-      const token = await useAuth.getState().getIdToken();
+      // Get the current Firebase ID token via Redux action
+      const result = await store.dispatch(getIdToken() as any);
+      const token = result.payload;
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -41,7 +43,8 @@ apiClient.interceptors.response.use(
 
       try {
         // Force refresh the Firebase ID token
-        const newToken = await useAuth.getState().getIdToken();
+        const result = await store.dispatch(getIdToken() as any);
+        const newToken = result.payload;
 
         if (newToken) {
           // Update the authorization header
@@ -56,7 +59,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         console.error('Error refreshing token:', refreshError);
         // If refresh fails, sign out the user
-        await useAuth.getState().signOut();
+        await store.dispatch(signOut() as any);
       }
     }
 

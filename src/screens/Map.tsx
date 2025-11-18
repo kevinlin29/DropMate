@@ -35,7 +35,8 @@ import { ROUTES } from '@/constants/routes';
 import { RootStackParamList } from '@/navigation/types';
 import { formatShipmentTitle } from '@/utils/format';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
-import { useDriver } from '@/stores/useDriver';
+import { useAppDispatch, useAppSelector } from '@/stores/hooks';
+import { driverSlice } from '@/stores/driverSlice';
 import { SearchBar } from '@/components/SearchBar';
 
 export const MapScreen: React.FC = () => {
@@ -44,8 +45,12 @@ export const MapScreen: React.FC = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [search, setSearch] = useState('');
-  const isDriverMode = useDriver((state) => state.isDriverMode);
-  const setDriverMode = useDriver((state) => state.setDriverMode);
+  const dispatch = useAppDispatch();
+  const isDriverMode = useAppSelector((state) => state.driver.isDriverMode);
+
+  const toggleDriverMode = () => {
+    dispatch(driverSlice.actions.setDriverMode(!isDriverMode));
+  };
 
   // useDriverLocationSimulator(false);
 
@@ -401,7 +406,7 @@ export const MapScreen: React.FC = () => {
             </Text>
             <Switch
               value={isDriverMode}
-              onValueChange={setDriverMode}
+              onValueChange={toggleDriverMode}
               trackColor={{
                 false:
                   theme.semantic.border || tokens.colors.border,
