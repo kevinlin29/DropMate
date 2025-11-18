@@ -7,8 +7,9 @@ import { LogOut } from 'lucide-react-native';
 
 import { NotificationsGate } from '@/features/notifications/NotificationsGate';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useUI, ThemePreference } from '@/stores/useUI';
-import { useAuth } from '@/stores/useAuth';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { ThemePreference, setThemePreference } from '@/store/slices/uiSlice';
+import { signOutThunk } from '@/store/slices/authSlice';
 import { RootStackParamList } from '@/navigation/types';
 import { ROUTES } from '@/constants/routes';
 import { t } from '@/i18n/i18n';
@@ -18,12 +19,11 @@ const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
 export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const signOut = useAuth((state) => state.signOut);
-  const themePreference = useUI((state) => state.themePreference);
-  const setThemePreference = useUI((state) => state.setThemePreference);
+  const dispatch = useAppDispatch();
+  const themePreference = useAppSelector((state) => state.ui.themePreference);
 
   const handleSignOut = async () => {
-    await signOut();
+    await dispatch(signOutThunk());
     navigation.reset({ index: 0, routes: [{ name: ROUTES.Login }] });
   };
 
@@ -42,7 +42,7 @@ export const SettingsScreen: React.FC = () => {
               return (
                 <Pressable
                   key={option}
-                  onPress={() => setThemePreference(option)}
+                  onPress={() => dispatch(setThemePreference(option))}
                   style={({ pressed }) => [
                     styles.themeChip,
                     {

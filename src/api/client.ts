@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { BASE_URL, TIMEOUT } from './env';
-import { useAuth } from '@/stores/useAuth';
+import { getStoreInstance } from '@/store/storeInstance';
+import { getIdToken } from '@/store/slices/authSlice';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -11,8 +12,15 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
+      const store = getStoreInstance();
+      if (!store) {
+        console.warn('Store not initialized yet');
+        return config;
+      }
+
       // Get the current Firebase ID token
-      const token = await useAuth.getState().getIdToken();
+      const resultAction = await store.dispatch(getIdToken(true));
+      const token = getIdToken.fulfilled.match(resultAction) ? resultAction.payload : null;
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -40,8 +48,15 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
+        const store = getStoreInstance();
+        if (!store) {
+          console.warn('Store not initialized, cannot refresh token');
+          return Promise.reject(error);
+        }
+
         // Force refresh the Firebase ID token
-        const newToken = await useAuth.getState().getIdToken();
+        const resultAction = await store.dispatch(getIdToken(true));
+        const newToken = getIdToken.fulfilled.match(resultAction) ? resultAction.payload : null;
 
         if (newToken) {
           // Update the authorization header
@@ -56,7 +71,11 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         console.error('Error refreshing token:', refreshError);
         // If refresh fails, sign out the user
-        await useAuth.getState().signOut();
+        const store = getStoreInstance();
+        if (store) {
+          const { signOutThunk } = await import('@/store/slices/authSlice');
+          await store.dispatch(signOutThunk());
+        }
       }
     }
 

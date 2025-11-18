@@ -1,22 +1,15 @@
-import { useEffect, useMemo } from 'react';
-
-import { useAuth } from '@/stores/useAuth';
-import { useUI } from '@/stores/useUI';
+import { useMemo } from 'react';
+import { useAppSelector } from '@/store/hooks';
 
 export const useFirstRun = () => {
-  const hydrateAuth = useAuth((state) => state.hydrate);
-  const authHydrated = useAuth((state) => state.hydrated);
-  const authStatus = useAuth((state) => state.status);
-  const token = useAuth((state) => state.token);
+  const authHydrated = useAppSelector((state) => state.auth.hydrated);
+  const authStatus = useAppSelector((state) => state.auth.status);
+  const token = useAppSelector((state) => state.auth.token);
 
-  const hydrateUI = useUI((state) => state.hydrate);
-  const uiHydrated = useUI((state) => state.hydrated);
-  const onboardingComplete = useUI((state) => state.onboardingComplete);
+  const uiHydrated = useAppSelector((state) => state.ui.hydrated);
+  const onboardingComplete = useAppSelector((state) => state.ui.onboardingComplete);
 
-  useEffect(() => {
-    void hydrateAuth();
-    void hydrateUI();
-  }, [hydrateAuth, hydrateUI]);
+  // Note: Hydration is now handled in App.tsx via useHydration hook
 
   const isReady = authHydrated && uiHydrated;
   const isAuthenticated = authStatus === 'authenticated' && Boolean(token);

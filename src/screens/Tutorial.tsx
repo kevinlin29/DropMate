@@ -7,7 +7,8 @@ import { ROUTES } from '@/constants/routes';
 import { t } from '@/i18n/i18n';
 import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useUI } from '@/stores/useUI';
+import { useAppDispatch } from '@/store/hooks';
+import { completeOnboarding } from '@/store/slices/uiSlice';
 
 const hero = require('@/../assets/images/onboarding-hero.png');
 
@@ -15,15 +16,19 @@ type TutorialProps = NativeStackScreenProps<RootStackParamList, 'Tutorial'>;
 
 export const TutorialScreen: React.FC<TutorialProps> = ({ navigation }) => {
   const theme = useTheme();
-  const completeOnboarding = useUI((state) => state.completeOnboarding);
+  const dispatch = useAppDispatch();
 
-  const handleContinue = async () => {
-    await completeOnboarding();
+  const handleCompleteOnboarding = () => {
+    dispatch(completeOnboarding());
+  };
+
+  const handleContinue = () => {
+    handleCompleteOnboarding();
     navigation.replace(ROUTES.Login);
   };
 
-  const handleSkip = async () => {
-    await completeOnboarding();
+  const handleSkip = () => {
+    handleCompleteOnboarding();
     navigation.replace(ROUTES.Login);
   };
 

@@ -19,7 +19,8 @@ import { ROUTES } from '@/constants/routes';
 import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FormTextInput } from '@/components/FormTextInput';
-import { useAuth } from '@/stores/useAuth';
+import { useAppDispatch } from '@/store/hooks';
+import { resetPassword } from '@/store/slices/authSlice';
 import { tokens } from '@/theme/tokens';
 
 const schema = z.object({
@@ -32,7 +33,7 @@ type ForgotPasswordProps = NativeStackScreenProps<RootStackParamList, 'ForgotPas
 
 export const ForgotPasswordScreen: React.FC<ForgotPasswordProps> = ({ navigation }) => {
   const theme = useTheme();
-  const resetPassword = useAuth((state) => state.resetPassword);
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [emailSent, setEmailSent] = useState(false);
@@ -52,7 +53,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordProps> = ({ navigation
     setError(undefined);
 
     try {
-      await resetPassword(values.email);
+      await dispatch(resetPassword(values.email));
       setEmailSent(true);
     } catch (err) {
       if (err instanceof Error) {
@@ -73,7 +74,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordProps> = ({ navigation
     setError(undefined);
 
     try {
-      await resetPassword(email);
+      await dispatch(resetPassword(email));
       // Show success feedback without changing the screen
     } catch (err) {
       if (err instanceof Error) {

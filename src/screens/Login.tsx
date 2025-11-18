@@ -22,7 +22,8 @@ import { t } from '@/i18n/i18n';
 import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { FormTextInput } from '@/components/FormTextInput';
-import { useAuth } from '@/stores/useAuth';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { signIn, signInWithApple as signInWithAppleThunk } from '@/store/slices/authSlice';
 import { tokens } from '@/theme/tokens';
 
 // -------------------- Zod Schema --------------------
@@ -36,10 +37,9 @@ type LoginProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen: React.FC<LoginProps> = ({ navigation }) => {
   const theme = useTheme();
-  const signIn = useAuth((state) => state.signIn);
-  const signInWithApple = useAuth((state) => state.signInWithApple);
-  const status = useAuth((state) => state.status);
-  const error = useAuth((state) => state.error);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector((state) => state.auth.status);
+  const error = useAppSelector((state) => state.auth.error);
 
   const [isAppleAvailable, setIsAppleAvailable] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
@@ -83,8 +83,8 @@ export const LoginScreen: React.FC<LoginProps> = ({ navigation }) => {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await signIn(values);
-      if (useAuth.getState().status === 'authenticated') {
+      const resultAction = await dispatch(signIn(values));
+      if (signIn.fulfilled.match(resultAction)) {
         navigation.replace(ROUTES.Main);
       }
     } catch (err) {
@@ -95,8 +95,8 @@ export const LoginScreen: React.FC<LoginProps> = ({ navigation }) => {
   const handleAppleSignIn = async () => {
     setAppleLoading(true);
     try {
-      await signInWithApple();
-      if (useAuth.getState().status === 'authenticated') {
+      const resultAction = await dispatch(signInWithAppleThunk());
+      if (signInWithAppleThunk.fulfilled.match(resultAction)) {
         navigation.replace(ROUTES.Main);
       }
     } catch (err) {

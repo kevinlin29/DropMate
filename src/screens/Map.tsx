@@ -36,7 +36,7 @@ import { ROUTES } from '@/constants/routes';
 import { RootStackParamList } from '@/navigation/types';
 import { formatShipmentTitle } from '@/utils/format';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
-import { useDriver } from '@/stores/useDriver';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { SearchBar } from '@/components/SearchBar';
 
 export const MapScreen: React.FC = () => {
@@ -45,8 +45,8 @@ export const MapScreen: React.FC = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [search, setSearch] = useState('');
-  const isDriverMode = useDriver((state) => state.isDriverMode);
-  const setDriverMode = useDriver((state) => state.setDriverMode);
+  const dispatch = useAppDispatch();
+  const isDriverMode = useAppSelector((state) => state.driver.isDriverMode);
 
   // useDriverLocationSimulator(false);
 

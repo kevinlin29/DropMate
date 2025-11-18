@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
@@ -6,7 +6,6 @@ import { Platform } from 'react-native';
 import { userService } from '@/api/userService';
 
 const PUSH_TOKEN_KEY = 'dropmate_push_token';
-const NOTIFICATION_SETTINGS_KEY = 'dropmate_notification_settings';
 
 export type NotificationSettings = {
   dailyReminderEnabled: boolean;
@@ -24,61 +23,24 @@ const DEFAULT_SETTINGS: NotificationSettings = {
 
 export type NotificationPermissionStatus = 'undetermined' | 'granted' | 'denied';
 
-type NotificationState = {
+interface NotificationsState {
   permissionStatus: NotificationPermissionStatus;
   pushToken: string | null;
   settings: NotificationSettings;
   hydrated: boolean;
+}
 
-  // Actions
-  hydrate: () => Promise<void>;
-  requestPermissions: () => Promise<boolean>;
-  registerForPushNotifications: () => Promise<string | null>;
-  updateSettings: (settings: Partial<NotificationSettings>) => Promise<void>;
-  getSettings: () => NotificationSettings;
-};
-
-export const useNotification = create<NotificationState>((set, get) => ({
+const initialState: NotificationsState = {
   permissionStatus: 'undetermined',
   pushToken: null,
   settings: DEFAULT_SETTINGS,
   hydrated: false,
+};
 
-  hydrate: async () => {
-    if (get().hydrated) {
-      return;
-    }
-
-    try {
-      // Load saved push token
-      const savedToken = await SecureStore.getItemAsync(PUSH_TOKEN_KEY);
-
-      // Load notification settings
-      const savedSettingsStr = await SecureStore.getItemAsync(NOTIFICATION_SETTINGS_KEY);
-      const savedSettings = savedSettingsStr
-        ? JSON.parse(savedSettingsStr)
-        : DEFAULT_SETTINGS;
-
-      // Check current permission status
-      const { status } = await Notifications.getPermissionsAsync();
-      const permissionStatus: NotificationPermissionStatus =
-        status === 'granted' ? 'granted' :
-        status === 'denied' ? 'denied' :
-        'undetermined';
-
-      set({
-        pushToken: savedToken,
-        settings: savedSettings,
-        permissionStatus,
-        hydrated: true,
-      });
-    } catch (error) {
-      console.error('Error hydrating notification state:', error);
-      set({ hydrated: true });
-    }
-  },
-
-  requestPermissions: async () => {
+// Async thunks
+export const requestPermissions = createAsyncThunk(
+  'notifications/requestPermissions',
+  async (_, { rejectWithValue }) => {
     try {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
@@ -90,20 +52,17 @@ export const useNotification = create<NotificationState>((set, get) => ({
       }
 
       const granted = finalStatus === 'granted';
-
-      set({
-        permissionStatus: granted ? 'granted' : 'denied',
-      });
-
-      return granted;
+      return granted ? 'granted' : 'denied';
     } catch (error) {
       console.error('Error requesting notification permissions:', error);
-      set({ permissionStatus: 'denied' });
-      return false;
+      return rejectWithValue('denied');
     }
-  },
+  }
+);
 
-  registerForPushNotifications: async () => {
+export const registerForPushNotifications = createAsyncThunk(
+  'notifications/registerPush',
+  async (_, { dispatch, rejectWithValue }) => {
     console.log('🔵 [PUSH] Starting push notification registration...');
 
     try {
@@ -116,8 +75,9 @@ export const useNotification = create<NotificationState>((set, get) => ({
 
       // Request permissions first
       console.log('🔵 [PUSH] Requesting permissions...');
-      const granted = await get().requestPermissions();
-      if (!granted) {
+      const resultAction = await dispatch(requestPermissions());
+
+      if (requestPermissions.rejected.match(resultAction) || resultAction.payload !== 'granted') {
         console.warn('🔴 [PUSH] Notification permission not granted');
         return null;
       }
@@ -195,31 +155,55 @@ export const useNotification = create<NotificationState>((set, get) => ({
         });
       }
 
-      set({ pushToken: token });
       return token;
     } catch (error) {
       console.error('Error registering for push notifications:', error);
-      return null;
+      return rejectWithValue(null);
     }
-  },
+  }
+);
 
-  updateSettings: async (newSettings: Partial<NotificationSettings>) => {
-    const currentSettings = get().settings;
-    const updatedSettings = { ...currentSettings, ...newSettings };
-
-    try {
-      await SecureStore.setItemAsync(
-        NOTIFICATION_SETTINGS_KEY,
-        JSON.stringify(updatedSettings)
-      );
-      set({ settings: updatedSettings });
-    } catch (error) {
-      console.error('Error updating notification settings:', error);
-      throw error;
-    }
+const notificationsSlice = createSlice({
+  name: 'notifications',
+  initialState,
+  reducers: {
+    updateSettings: (state, action: PayloadAction<Partial<NotificationSettings>>) => {
+      state.settings = { ...state.settings, ...action.payload };
+    },
+    hydrateNotifications: (
+      state,
+      action: PayloadAction<{
+        pushToken: string | null;
+        settings: NotificationSettings;
+        permissionStatus: NotificationPermissionStatus;
+      }>
+    ) => {
+      state.pushToken = action.payload.pushToken;
+      state.settings = action.payload.settings;
+      state.permissionStatus = action.payload.permissionStatus;
+      state.hydrated = true;
+    },
+    setHydrated: (state, action: PayloadAction<boolean>) => {
+      state.hydrated = action.payload;
+    },
   },
+  extraReducers: (builder) => {
+    // Request Permissions
+    builder.addCase(requestPermissions.fulfilled, (state, action) => {
+      state.permissionStatus = action.payload as NotificationPermissionStatus;
+    });
+    builder.addCase(requestPermissions.rejected, (state) => {
+      state.permissionStatus = 'denied';
+    });
 
-  getSettings: () => {
-    return get().settings;
+    // Register Push
+    builder.addCase(registerForPushNotifications.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.pushToken = action.payload;
+      }
+    });
   },
-}));
+});
+
+export const { updateSettings, hydrateNotifications, setHydrated } = notificationsSlice.actions;
+export default notificationsSlice.reducer;

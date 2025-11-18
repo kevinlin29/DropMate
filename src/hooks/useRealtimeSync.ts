@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/stores/useAuth';
-import { notificationService, ShipmentStatusUpdate, ShipmentLocationUpdate } from '@/api/notificationClient';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { connectSocket, disconnectSocket } from '@/store/middleware/socketMiddleware';
 import { shipmentKeys } from '@/api/queryKeys';
 
 /**
@@ -20,7 +20,8 @@ import { shipmentKeys } from '@/api/queryKeys';
  */
 export const useRealtimeSync = () => {
   const queryClient = useQueryClient();
-  const { user, status } = useAuth();
+  const dispatch = useAppDispatch();
+  const { user, status } = useAppSelector((state) => state.auth);
   const appState = useRef(AppState.currentState);
   const isWebSocketConnected = useRef(false);
 
@@ -32,7 +33,7 @@ export const useRealtimeSync = () => {
       // Disconnect if not authenticated
       if (isWebSocketConnected.current) {
         console.log('🔌 [SYNC] Disconnecting WebSocket (user logged out)');
-        notificationService.disconnect();
+        dispatch(disconnectSocket());
         isWebSocketConnected.current = false;
       }
       console.log('⏸️ [SYNC] Not connecting - user not authenticated');
@@ -41,70 +42,16 @@ export const useRealtimeSync = () => {
 
     // Only connect if app is in foreground
     if (appState.current === 'active' && !isWebSocketConnected.current) {
-      console.log('🔌 [SYNC] Attempting WebSocket connection...');
-      console.log('🔌 [SYNC] Notification URL:', 'http://24.199.64.155');
-
-      notificationService.connect({
-        onConnected: (data) => {
-          console.log('✅ [SYNC] WebSocket connected:', data.socketId);
-          isWebSocketConnected.current = true;
-        },
-
-        onShipmentStatusUpdate: (data: ShipmentStatusUpdate) => {
-          console.log('📦 [SYNC] ===== SHIPMENT STATUS UPDATE RECEIVED =====');
-          console.log('📦 [SYNC] Shipment ID:', data.shipmentId);
-          console.log('📦 [SYNC] New Status:', data.status);
-          console.log('📦 [SYNC] Timestamp:', data.timestamp);
-
-          // Invalidate queries to trigger refetch with fresh data
-          console.log('🔄 [SYNC] Invalidating React Query cache with correct keys...');
-
-          // Invalidate all shipment lists (all filters)
-          queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
-
-          // Invalidate specific shipment detail
-          queryClient.invalidateQueries({ queryKey: shipmentKeys.detail(String(data.shipmentId)) });
-
-          // Invalidate route if it exists
-          queryClient.invalidateQueries({ queryKey: shipmentKeys.route(String(data.shipmentId)) });
-
-          console.log('✅ [SYNC] Cache invalidated - React Query should refetch now');
-
-          // Show in-app notification (since user is actively using app)
-          console.log(`✅ Shipment ${data.shipmentId} → ${data.status}`);
-        },
-
-        onShipmentLocationUpdate: (data: ShipmentLocationUpdate) => {
-          console.log('📍 [SYNC] Shipment location updated:', data.shipmentId);
-
-          // Update shipment location and route in cache
-          queryClient.invalidateQueries({ queryKey: shipmentKeys.detail(String(data.shipmentId)) });
-          queryClient.invalidateQueries({ queryKey: shipmentKeys.route(String(data.shipmentId)) });
-        },
-
-        onDriverLocationUpdate: (data) => {
-          console.log('🚗 [SYNC] Driver location updated:', data.driverId);
-
-          // Update driver location in cache (if tracking this driver)
-          queryClient.invalidateQueries({ queryKey: ['driver', data.driverId] });
-        },
-
-        onDisconnect: () => {
-          console.log('🔌 [SYNC] WebSocket disconnected');
-          isWebSocketConnected.current = false;
-        },
-
-        onError: (error) => {
-          console.error('🔴 [SYNC] WebSocket error:', error);
-        },
-      });
+      console.log('🔌 [SYNC] Attempting WebSocket connection via Redux middleware...');
+      dispatch(connectSocket());
+      isWebSocketConnected.current = true;
     }
 
     return () => {
       // Keep connection alive on unmount unless user logs out
       // This allows switching screens without reconnecting
     };
-  }, [status, user, queryClient]);
+  }, [status, user, dispatch]);
 
   // Handle app state changes (foreground/background)
   useEffect(() => {
@@ -124,7 +71,8 @@ export const useRealtimeSync = () => {
         // Reconnect WebSocket if disconnected
         if (!isWebSocketConnected.current) {
           console.log('🔌 [SYNC] Reconnecting WebSocket...');
-          notificationService.connect();
+          dispatch(connectSocket());
+          isWebSocketConnected.current = true;
         }
 
         console.log('✅ [SYNC] Data refreshed');
@@ -135,7 +83,7 @@ export const useRealtimeSync = () => {
 
         // Disconnect WebSocket to save battery (push notifications will handle updates)
         if (isWebSocketConnected.current) {
-          notificationService.disconnect();
+          dispatch(disconnectSocket());
           isWebSocketConnected.current = false;
         }
       }
@@ -148,7 +96,7 @@ export const useRealtimeSync = () => {
     return () => {
       subscription.remove();
     };
-  }, [status, queryClient]);
+  }, [status, queryClient, dispatch]);
 
   // Subscribe to user's shipments on WebSocket
   useEffect(() => {

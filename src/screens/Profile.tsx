@@ -6,13 +6,13 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, Package, CheckCircle, AlertCircle } from 'lucide-react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
-import { useAuth } from '@/stores/useAuth';
+import { useAppSelector } from '@/store/hooks';
 import { RootStackParamList } from '@/navigation/types';
 
 export const ProfileScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const user = useAuth((state) => state.user);
+  const user = useAppSelector((state) => state.auth.user);
 
   // Extract user info
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';

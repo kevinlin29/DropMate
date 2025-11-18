@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
-import { useAuth } from '@/stores/useAuth';
-import { useNotification } from '@/stores/useNotification';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { registerForPushNotifications } from '@/store/slices/notificationsSlice';
 
 /**
  * Hook to automatically handle push notification registration
@@ -13,12 +13,9 @@ import { useNotification } from '@/stores/useNotification';
  * 4. Cleans up on logout
  */
 export const usePushNotifications = () => {
-  const { user, status } = useAuth();
-  const {
-    permissionStatus,
-    registerForPushNotifications,
-    pushToken
-  } = useNotification();
+  const dispatch = useAppDispatch();
+  const { user, status } = useAppSelector((state) => state.auth);
+  const { permissionStatus, pushToken } = useAppSelector((state) => state.notifications);
 
   const hasRegistered = useRef(false);
   const appState = useRef(AppState.currentState);
@@ -38,9 +35,9 @@ export const usePushNotifications = () => {
         console.log('🔵 [AUTO-REGISTER] User authenticated, attempting push token registration...');
 
         try {
-          const token = await registerForPushNotifications();
+          const resultAction = await dispatch(registerForPushNotifications());
 
-          if (token) {
+          if (registerForPushNotifications.fulfilled.match(resultAction) && resultAction.payload) {
             console.log('✅ [AUTO-REGISTER] Push token registered successfully');
             hasRegistered.current = true;
           } else {
@@ -54,7 +51,7 @@ export const usePushNotifications = () => {
     };
 
     attemptRegistration();
-  }, [status, user, registerForPushNotifications]);
+  }, [status, user, dispatch]);
 
   // Reset registration flag on logout
   useEffect(() => {
@@ -80,7 +77,7 @@ export const usePushNotifications = () => {
 
           try {
             // Re-register (will use cached token if still valid)
-            await registerForPushNotifications();
+            await dispatch(registerForPushNotifications());
             console.log('✅ [AUTO-REGISTER] Token refresh check complete');
           } catch (error) {
             console.error('🔴 [AUTO-REGISTER] Token refresh failed:', error);
@@ -96,7 +93,7 @@ export const usePushNotifications = () => {
     return () => {
       subscription.remove();
     };
-  }, [status, user, registerForPushNotifications]);
+  }, [status, user, dispatch]);
 
   return {
     isRegistered: hasRegistered.current,

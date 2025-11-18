@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { useNotification } from '@/stores/useNotification';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { requestPermissions, registerForPushNotifications, updateSettings } from '@/store/slices/notificationsSlice';
 import { useTheme } from '@/theme/ThemeProvider';
 import { scheduleDailyReminder, showNotification } from '@/services/notificationService';
 
@@ -14,13 +15,9 @@ export const NotificationsGate: React.FC<NotificationsGateProps> = ({ children }
   const [isLoading, setIsLoading] = useState(false);
   const [enabled, setEnabled] = useState(false);
 
-  const {
-    permissionStatus,
-    settings,
-    requestPermissions,
-    registerForPushNotifications,
-    updateSettings,
-  } = useNotification();
+  const dispatch = useAppDispatch();
+  const permissionStatus = useAppSelector((state) => state.notifications.permissionStatus);
+  const settings = useAppSelector((state) => state.notifications.settings);
 
   // Initialize enabled state based on permissions and settings
   useEffect(() => {
@@ -41,20 +38,21 @@ export const NotificationsGate: React.FC<NotificationsGateProps> = ({ children }
     if (value) {
       setIsLoading(true);
       try {
-        const granted = await requestPermissions();
+        const resultAction = await dispatch(requestPermissions());
+        const granted = requestPermissions.fulfilled.match(resultAction) && resultAction.payload === 'granted';
 
         if (granted) {
           // Register for push notifications (will auto-register on next app foreground if not already)
           console.log('🔵 [SETTINGS] Requesting push notification registration...');
-          await registerForPushNotifications();
+          await dispatch(registerForPushNotifications());
           setEnabled(true);
 
           // Enable all notification types by default
-          await updateSettings({
+          dispatch(updateSettings({
             dailyReminderEnabled: true,
             shipmentStatusEnabled: true,
             driverProximityEnabled: true,
-          });
+          }));
 
           Alert.alert(
             'Notifications Enabled',
@@ -107,11 +105,11 @@ export const NotificationsGate: React.FC<NotificationsGateProps> = ({ children }
                 await cancelAllNotifications();
 
                 // Disable all notification settings
-                await updateSettings({
+                dispatch(updateSettings({
                   dailyReminderEnabled: false,
                   shipmentStatusEnabled: false,
                   driverProximityEnabled: false,
-                });
+                }));
 
                 // Update UI state
                 setEnabled(false);
@@ -138,7 +136,7 @@ export const NotificationsGate: React.FC<NotificationsGateProps> = ({ children }
     value: boolean
   ) => {
     try {
-      await updateSettings({ [key]: value });
+      dispatch(updateSettings({ [key]: value }));
     } catch (error) {
       console.error('Error updating setting:', error);
       Alert.alert('Error', 'Failed to update notification setting.');

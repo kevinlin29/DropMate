@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useDriver } from '@/stores/useDriver';
+import { useAppDispatch } from '@/store/hooks';
+import { updateLocation } from '@/store/slices/driverSlice';
 
 /**
  * Hook to simulate driver location updates for testing purposes
@@ -8,7 +9,7 @@ import { useDriver } from '@/stores/useDriver';
  * In production, this would be replaced with actual GPS tracking using expo-location
  */
 export const useDriverLocationSimulator = (enabled: boolean = false) => {
-  const updateLocation = useDriver((state) => state.updateLocation);
+  const dispatch = useAppDispatch();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const stepRef = useRef(0);
 
@@ -41,7 +42,7 @@ export const useDriverLocationSimulator = (enabled: boolean = false) => {
       const currentStep = stepRef.current % simulatedRoute.length;
       const location = simulatedRoute[currentStep];
 
-      updateLocation(location.lat, location.lng);
+      dispatch(updateLocation({ latitude: location.lat, longitude: location.lng }));
 
       stepRef.current = currentStep + 1;
 
@@ -49,7 +50,7 @@ export const useDriverLocationSimulator = (enabled: boolean = false) => {
     }, 3000);
 
     // Set initial location
-    updateLocation(simulatedRoute[0].lat, simulatedRoute[0].lng);
+    dispatch(updateLocation({ latitude: simulatedRoute[0].lat, longitude: simulatedRoute[0].lng }));
 
     return () => {
       if (intervalRef.current) {
@@ -57,5 +58,5 @@ export const useDriverLocationSimulator = (enabled: boolean = false) => {
         intervalRef.current = null;
       }
     };
-  }, [enabled, updateLocation]);
+  }, [enabled, dispatch]);
 };
