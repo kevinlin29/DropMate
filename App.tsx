@@ -49,7 +49,7 @@ const AppContent: React.FC = () => {
 
     return () => {
       if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
+        notificationListener.current.remove();
       }
     };
   }, []);

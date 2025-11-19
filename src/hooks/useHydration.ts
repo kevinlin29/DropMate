@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { useAppDispatch } from '@/store/hooks';
 import { initializeAuthListener } from '@/store/slices/authSlice';
 import { hydrateNotifications, NotificationPermissionStatus, NotificationSettings } from '@/store/slices/notificationsSlice';
+import { setHydrated } from '@/store/slices/uiSlice';
 
 const PUSH_TOKEN_KEY = 'dropmate_push_token';
 const NOTIFICATION_SETTINGS_KEY = 'dropmate_notification_settings';
@@ -58,6 +59,9 @@ export const useHydration = () => {
             permissionStatus: 'undetermined',
           })
         );
+      } finally {
+        // Mark UI as hydrated after all hydration is complete
+        dispatch(setHydrated(true));
       }
     };
 

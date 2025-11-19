@@ -37,6 +37,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { formatShipmentTitle } from '@/utils/format';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { setDriverMode } from '@/store/slices/driverSlice';
 import { SearchBar } from '@/components/SearchBar';
 
 export const MapScreen: React.FC = () => {
@@ -421,7 +422,7 @@ export const MapScreen: React.FC = () => {
             </Text>
             <Switch
               value={isDriverMode}
-              onValueChange={setDriverMode}
+              onValueChange={(value) => dispatch(setDriverMode(value))}
               trackColor={{
                 false:
                   theme.semantic.border || tokens.colors.border,
