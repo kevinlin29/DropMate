@@ -11,3 +11,11 @@ export const userKeys = {
   profile: () => ['user', 'profile'] as const,
   stats: () => ['user', 'stats'] as const,
 };
+
+export const driverKeys = {
+  all: ['driver'] as const,
+  deliveries: () => ['driver', 'deliveries'] as const,
+  deliveriesByStatus: (status?: string) => ['driver', 'deliveries', status ?? 'all'] as const,
+  deliveryDetail: (id: number) => ['driver', 'delivery', id] as const,
+  availablePackages: () => ['driver', 'available'] as const,
+};

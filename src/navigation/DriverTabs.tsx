@@ -6,29 +6,25 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { View, Platform, StyleSheet } from 'react-native';
-import { Home, Search, Map as MapIcon, Settings as SettingsIcon } from 'lucide-react-native';
+import { Home, Package, Map as MapIcon, Settings as SettingsIcon } from 'lucide-react-native';
 
-import { BottomTabParamList } from './types';
+import { DriverTabParamList } from './types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
-import { useUserProfileQuery } from '@/hooks/useUserQuery';
-import { DriverTabs } from './DriverTabs';
 
-// screens
-import { HomeScreen } from '@/screens/Home';
-import { TrackScreen } from '@/screens/Track';
-import { MapScreen } from '@/screens/Map';
+// Driver screens
+import { DriverHomeScreen, DriverDeliveriesScreen, DriverMapScreen } from '@/screens/driver';
 import { SettingsScreen } from '@/screens/Settings';
 
-const Tab = createBottomTabNavigator<BottomTabParamList>();
+const Tab = createBottomTabNavigator<DriverTabParamList>();
 
-// Animated wrapper
-const FadeWrapper = ({ children, isActive }: { children: any; isActive: boolean }) => {
+// Animated wrapper for smooth tab transitions
+const FadeWrapper = ({ children, isActive }: { children: React.ReactNode; isActive: boolean }) => {
   const progress = useSharedValue(isActive ? 1 : 0);
 
   useEffect(() => {
     progress.value = withTiming(isActive ? 1 : 0, { duration: 260 });
-  }, [isActive]);
+  }, [isActive, progress]);
 
   const anim = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -38,24 +34,16 @@ const FadeWrapper = ({ children, isActive }: { children: any; isActive: boolean 
   return <Animated.View style={[{ flex: 1 }, anim]}>{children}</Animated.View>;
 };
 
-export const AnimatedTabs = () => {
+export const DriverTabs = () => {
   const theme = useTheme();
-  const { data: userData } = useUserProfileQuery();
-
-  // React state for current tab (allowed in render)
-  const [activeTab, setActiveTab] = useState('HomeTab');
-
-  // Render driver tabs if user is a driver
-  if (userData?.role === 'driver') {
-    return <DriverTabs />;
-  }
+  const [activeTab, setActiveTab] = useState('DriverHomeTab');
 
   return (
     <Tab.Navigator
       screenListeners={{
         state: (e) => {
           const nextTab = e.data.state?.routeNames[e.data.state.index];
-          if (nextTab) setActiveTab(nextTab); // <-- store in React, not sharedValue
+          if (nextTab) setActiveTab(nextTab);
         },
       }}
       screenOptions={({ route }) => ({
@@ -76,10 +64,10 @@ export const AnimatedTabs = () => {
           marginTop: 4,
         },
         tabBarIcon: ({ focused, color }) => {
-          const icons = {
-            HomeTab: Home,
-            TrackTab: Search,
-            MapTab: MapIcon,
+          const icons: Record<string, typeof Home> = {
+            DriverHomeTab: Home,
+            DeliveriesTab: Package,
+            DriverMapTab: MapIcon,
             SettingsTab: SettingsIcon,
           };
 
@@ -97,19 +85,31 @@ export const AnimatedTabs = () => {
         },
       })}
     >
-      <Tab.Screen name="HomeTab">
-        {() => <FadeWrapper isActive={activeTab === 'HomeTab'}><HomeScreen /></FadeWrapper>}
+      <Tab.Screen name="DriverHomeTab" options={{ tabBarLabel: 'Home' }}>
+        {() => (
+          <FadeWrapper isActive={activeTab === 'DriverHomeTab'}>
+            <DriverHomeScreen />
+          </FadeWrapper>
+        )}
       </Tab.Screen>
 
-      <Tab.Screen name="TrackTab">
-        {() => <FadeWrapper isActive={activeTab === 'TrackTab'}><TrackScreen /></FadeWrapper>}
+      <Tab.Screen name="DeliveriesTab" options={{ tabBarLabel: 'Deliveries' }}>
+        {() => (
+          <FadeWrapper isActive={activeTab === 'DeliveriesTab'}>
+            <DriverDeliveriesScreen />
+          </FadeWrapper>
+        )}
       </Tab.Screen>
 
-      <Tab.Screen name="MapTab">
-        {() => <FadeWrapper isActive={activeTab === 'MapTab'}><MapScreen /></FadeWrapper>}
+      <Tab.Screen name="DriverMapTab" options={{ tabBarLabel: 'Map' }}>
+        {() => (
+          <FadeWrapper isActive={activeTab === 'DriverMapTab'}>
+            <DriverMapScreen />
+          </FadeWrapper>
+        )}
       </Tab.Screen>
 
-      <Tab.Screen name="SettingsTab">
+      <Tab.Screen name="SettingsTab" options={{ tabBarLabel: 'Settings' }}>
         {() => (
           <FadeWrapper isActive={activeTab === 'SettingsTab'}>
             <SettingsScreen />

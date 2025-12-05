@@ -27,6 +27,9 @@ import { ShipmentDetailsScreen } from '@/screens/ShipmentDetails';
 import { AddTrackingSheetScreen } from '@/screens/AddTrackingSheet';
 import { PlaceOrderScreen } from '@/screens/PlaceOrder';
 
+// Driver screens
+import { DriverDeliveryDetailsScreen, AvailablePackagesScreen } from '@/screens/driver';
+
 // Transitions
 import {
   PremiumSlideRight,
@@ -176,6 +179,10 @@ export const RootNavigator = () => {
         {/* MODALS + SHEETS */}
         <Stack.Screen name={ROUTES.AddTracking} component={AddTrackingSheetScreen} options={PremiumModal} />
         <Stack.Screen name={ROUTES.PlaceOrder} component={PlaceOrderScreen} options={PremiumSlideBottom} />
+
+        {/* DRIVER SCREENS */}
+        <Stack.Screen name={ROUTES.DriverDeliveryDetails} component={DriverDeliveryDetailsScreen} options={PremiumSlideRight} />
+        <Stack.Screen name={ROUTES.AvailablePackages} component={AvailablePackagesScreen} options={PremiumSlideRight} />
       </Stack.Navigator>
     </NavigationContainer>
   );

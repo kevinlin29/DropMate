@@ -7,17 +7,27 @@ export type BottomTabParamList = {
   SettingsTab: undefined;
 };
 
+export type DriverTabParamList = {
+  DriverHomeTab: undefined;
+  DeliveriesTab: undefined;
+  DriverMapTab: undefined;
+  SettingsTab: undefined;
+};
+
 export type RootStackParamList = {
   Splash: undefined;
   Tutorial: undefined;
   Login: undefined;
   Signup: undefined;
   ForgotPassword: undefined;
-  Main: NavigatorScreenParams<BottomTabParamList> | undefined;
+  Main: NavigatorScreenParams<BottomTabParamList> | NavigatorScreenParams<DriverTabParamList> | undefined;
   Profile: undefined;
   ShipmentDetails: { shipmentId: string };
   AddTracking: undefined;
-  PlaceOrder: undefined; // Add a new route to place shipments
+  PlaceOrder: undefined;
+  // Driver-specific routes
+  DriverDeliveryDetails: { deliveryId: number };
+  AvailablePackages: undefined;
 };
 
 

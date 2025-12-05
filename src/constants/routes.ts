@@ -9,12 +9,22 @@ export const ROUTES = {
   ShipmentDetails: 'ShipmentDetails',
   AddTracking: 'AddTracking',
   PlaceOrder: 'PlaceOrder',
+  // Driver-specific routes
+  DriverDeliveryDetails: 'DriverDeliveryDetails',
+  AvailablePackages: 'AvailablePackages',
 } as const;
 
 export const TABS = {
   Home: 'HomeTab',
   Track: 'TrackTab',
   Map: 'MapTab',
+  Settings: 'SettingsTab',
+} as const;
+
+export const DRIVER_TABS = {
+  Home: 'DriverHomeTab',
+  Deliveries: 'DeliveriesTab',
+  Map: 'DriverMapTab',
   Settings: 'SettingsTab',
 } as const;
 

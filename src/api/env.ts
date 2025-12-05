@@ -27,8 +27,8 @@ const parseBoolean = (value: string | boolean | undefined): boolean => {
 };
 
 export const USE_HTTP = envUseHttp !== undefined ? parseBoolean(envUseHttp) : extra.USE_HTTP ?? false;
-export const BASE_URL = envBaseUrl ?? extra.BASE_URL ?? 'https://api.dropmate.dev';
-export const LOCATION_URL = envLocationUrl ?? extra.LOCATION_URL ?? BASE_URL;
-export const NOTIFICATION_URL = envNotificationUrl ?? extra.NOTIFICATION_URL ?? BASE_URL;
+export const BASE_URL = envBaseUrl ?? extra.BASE_URL ?? 'https://api.dropmate.ca';
+export const LOCATION_URL = envLocationUrl ?? extra.LOCATION_URL ?? 'https://location.dropmate.ca';
+export const NOTIFICATION_URL = envNotificationUrl ?? extra.NOTIFICATION_URL ?? 'https://notify.dropmate.ca';
 export const TIMEOUT =
   envTimeout !== undefined ? Number(envTimeout) : extra.TIMEOUT ?? 8000;
