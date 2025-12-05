@@ -1,23 +1,49 @@
-# Node.js build artifacts
+# Expo / React Native
 node_modules/
-*/node_modules/
-dist/
-npm-debug.log*
+.expo/
+.expo-shared/
+.expo-dev-
+android/
+ios/
+web-build/
+.expo-staging/
 
-# Environment & editor files
-.env
-.env.*
+# Expo router artifacts
+.expo-router/
+
+# Metro
+.metro-cache/
+
+# macOS files
 .DS_Store
+*.swp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 *.log
 
 # TypeScript
 *.tsbuildinfo
 
-# Docker artifacts
-*.pid
-*.seed
-postgres-data/
-
-# VSCode / IDE
-.idea/
+# IDEs / Editors
 .vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage / Reports
+coverage/
+*.lcov
+
+# Misc
+.env*
+key.env
+.pnpm-store/
+build/
+dist/
