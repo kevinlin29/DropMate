@@ -2,15 +2,18 @@ import React, { useMemo } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Platform, View, Text, StyleSheet } from 'react-native';
+import { Platform, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Home, Search, Map as MapIcon, Settings as SettingsIcon } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 
 import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
-import { ROUTES, TABS } from '@/constants/routes';
+import { ROUTES, TABS, DRIVER_TABS } from '@/constants/routes';
 import { RootStackParamList, BottomTabParamList } from './types';
 import { AnimatedTabs } from './AnimatedTabs';
+import { DriverTabs } from './DriverTabs';
+import { useUserProfileQuery } from '@/hooks/useUserQuery';
+import { useAppSelector } from '@/store/hooks';
 
 // Screens
 import { SplashScreen } from '@/screens/Splash';
@@ -27,6 +30,10 @@ import { ShipmentDetailsScreen } from '@/screens/ShipmentDetails';
 import { AddTrackingSheetScreen } from '@/screens/AddTrackingSheet';
 import { PlaceOrderScreen } from '@/screens/PlaceOrder';
 
+// Driver screens
+import { DeliveryDetailsScreen } from '@/screens/driver/DeliveryDetails';
+import { DriverRegistrationScreen } from '@/screens/driver/DriverRegistration';
+
 // Transitions
 import {
   PremiumSlideRight,
@@ -38,6 +45,47 @@ import {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
+
+// ----------------------
+// ROLE-BASED MAIN SCREEN
+// ----------------------
+const RoleBasedMainScreen = () => {
+  const theme = useTheme();
+  const authStatus = useAppSelector((state) => state.auth.status);
+  const isAuthenticated = authStatus === 'authenticated';
+  const { data: userProfile, isLoading, isFetching, error } = useUserProfileQuery();
+
+  console.log('[RoleBasedMainScreen] State:', {
+    authStatus,
+    isAuthenticated,
+    isLoading,
+    isFetching,
+    role: userProfile?.role,
+    hasProfile: !!userProfile,
+    error: error?.message,
+  });
+
+  // Show loading while auth is pending or profile is being fetched
+  const shouldShowLoading = isLoading || (isAuthenticated && isFetching) || (isAuthenticated && !userProfile && !error);
+
+  if (shouldShowLoading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.semantic.background }]}>
+        <ActivityIndicator size="large" color={tokens.colors.primary} />
+      </View>
+    );
+  }
+
+  // Show driver tabs if user is a driver
+  if (userProfile?.role === 'driver') {
+    console.log('[RoleBasedMainScreen] Showing DriverTabs');
+    return <DriverTabs />;
+  }
+
+  // Default to customer tabs
+  console.log('[RoleBasedMainScreen] Showing AnimatedTabs (customer)');
+  return <AnimatedTabs />;
+};
 
 // ----------------------
 // BOTTOM TAB NAVIGATOR
@@ -166,12 +214,16 @@ export const RootNavigator = () => {
         <Stack.Screen name={ROUTES.Signup} component={SignupScreen} options={PremiumFade} />
         <Stack.Screen name={ROUTES.ForgotPassword} component={ForgotPasswordScreen} options={PremiumFade} />
 
-        {/* TABS */}
-        <Stack.Screen name={ROUTES.Main} component={AnimatedTabs} options={PremiumSlideRight} />
+        {/* TABS - Role-based (shows customer or driver tabs) */}
+        <Stack.Screen name={ROUTES.Main} component={RoleBasedMainScreen} options={PremiumSlideRight} />
 
-        {/* PUSH SCREENS */}
+        {/* CUSTOMER PUSH SCREENS */}
         <Stack.Screen name={ROUTES.Profile} component={ProfileScreen} options={PremiumSlideRight} />
         <Stack.Screen name={ROUTES.ShipmentDetails} component={ShipmentDetailsScreen} options={PremiumSlideRight} />
+
+        {/* DRIVER PUSH SCREENS */}
+        <Stack.Screen name={ROUTES.DeliveryDetails} component={DeliveryDetailsScreen} options={PremiumSlideRight} />
+        <Stack.Screen name={ROUTES.DriverRegistration} component={DriverRegistrationScreen} options={PremiumSlideBottom} />
 
         {/* MODALS + SHEETS */}
         <Stack.Screen name={ROUTES.AddTracking} component={AddTrackingSheetScreen} options={PremiumModal} />
@@ -182,6 +234,11 @@ export const RootNavigator = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   activeIconContainer: {
     width: 56,
     height: 56,

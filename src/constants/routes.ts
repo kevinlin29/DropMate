@@ -9,6 +9,9 @@ export const ROUTES = {
   ShipmentDetails: 'ShipmentDetails',
   AddTracking: 'AddTracking',
   PlaceOrder: 'PlaceOrder',
+  // Driver routes
+  DriverRegistration: 'DriverRegistration',
+  DeliveryDetails: 'DeliveryDetails',
 } as const;
 
 export const TABS = {
@@ -16,6 +19,13 @@ export const TABS = {
   Track: 'TrackTab',
   Map: 'MapTab',
   Settings: 'SettingsTab',
+} as const;
+
+export const DRIVER_TABS = {
+  DriverHome: 'DriverHomeTab',
+  DriverDeliveries: 'DriverDeliveriesTab',
+  DriverMap: 'DriverMapTab',
+  DriverSettings: 'DriverSettingsTab',
 } as const;
 
 export const DEEP_LINK_PATTERN = 'dropmate://track/:id';

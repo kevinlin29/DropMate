@@ -110,7 +110,6 @@ export const registerForPushNotifications = createAsyncThunk(
       // Register token with backend (best effort - don't fail if backend is unavailable)
       try {
         console.log('🔵 [PUSH] Registering token with backend...');
-        console.log('🔵 [PUSH] Backend URL:', 'http://178.128.132.24/api/users/me/push-token');
         const response = await userService.registerPushToken(token);
         console.log('✅ [PUSH] Token registered with backend successfully!');
         console.log('✅ [PUSH] Backend response:', JSON.stringify(response));

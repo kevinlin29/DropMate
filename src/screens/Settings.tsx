@@ -3,16 +3,18 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LogOut } from 'lucide-react-native';
+import { LogOut, Truck } from 'lucide-react-native';
 
 import { NotificationsGate } from '@/features/notifications/NotificationsGate';
 import { useTheme } from '@/theme/ThemeProvider';
+import { tokens } from '@/theme/tokens';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { ThemePreference, setThemePreference } from '@/store/slices/uiSlice';
 import { signOutThunk } from '@/store/slices/authSlice';
 import { RootStackParamList } from '@/navigation/types';
 import { ROUTES } from '@/constants/routes';
 import { t } from '@/i18n/i18n';
+import { useUserProfileQuery } from '@/hooks/useUserQuery';
 
 const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
 
@@ -21,10 +23,17 @@ export const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const themePreference = useAppSelector((state) => state.ui.themePreference);
+  const { data: userProfile } = useUserProfileQuery();
+
+  const isCustomer = userProfile?.role === 'customer';
 
   const handleSignOut = async () => {
     await dispatch(signOutThunk());
     navigation.reset({ index: 0, routes: [{ name: ROUTES.Login }] });
+  };
+
+  const handleBecomeDriver = () => {
+    navigation.navigate(ROUTES.DriverRegistration);
   };
 
   return (
@@ -63,6 +72,25 @@ export const SettingsScreen: React.FC = () => {
         <View style={styles.section}>
           <NotificationsGate />
         </View>
+
+        {/* Become a Driver - only show for customers */}
+        {isCustomer && (
+          <Pressable
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.driverButton,
+              {
+                backgroundColor: `${tokens.colors.primary}14`,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+            onPress={handleBecomeDriver}
+          >
+            <Truck color={tokens.colors.primary} size={20} />
+            <Text style={[styles.driverLabel, { color: tokens.colors.primary }]}>Become a Driver</Text>
+          </Pressable>
+        )}
+
         <Pressable
           accessibilityRole="button"
           style={({ pressed }) => [
@@ -122,6 +150,18 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   signOutLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  driverButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  driverLabel: {
     fontSize: 16,
     fontWeight: '600',
   },

@@ -1,4 +1,8 @@
 export const colors = {
+  // Primary color (alias for consistent usage)
+  primary: '#007AFF',
+  primaryTeal: '#007AFF', // Alias for backwards compatibility
+
   // Primary - Neutral/Beige palette from new design
   primaryBeige: '#F5F1EB',
   primaryCream: '#FFF9F0',
