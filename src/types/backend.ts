@@ -247,6 +247,19 @@ export type DeliveryItem = {
   total_amount: string;
   customer_name: string;
   customer_phone: string;
+  // Extended fields from backend
+  pickup_latitude?: number | null;
+  pickup_longitude?: number | null;
+  delivery_latitude?: number | null;
+  delivery_longitude?: number | null;
+  sender_name?: string | null;
+  sender_phone?: string | null;
+  receiver_name?: string | null;
+  receiver_phone?: string | null;
+  package_weight?: number | null;
+  package_description?: string | null;
+  package_details?: Record<string, any> | null;
+  package_status?: PackageStatus | null;
 };
 
 export type DriverDeliveriesResponse = {
