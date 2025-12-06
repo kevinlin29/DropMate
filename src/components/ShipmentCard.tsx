@@ -82,134 +82,143 @@ const ShipmentCardComponent: React.FC<ShipmentCardProps> = ({
         {...pressableProps}
       >
         <View style={styles.detailedContent}>
-          {/* Header Row */}
-          <View style={styles.detailedHeader}>
-            <View>
-              <Text style={[styles.detailedLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                Booking id
+          {/* TOP HALF */}
+          <View style={styles.cardTopSection}>
+            {/* LEFT SIDE */}
+            <View style={styles.cardLeftContent}>
+              {/* Status on top */}
+              <View style={styles.statusContainer}>
+                <StatusPill status={shipment.status} variant="solid" />
+              </View>
+              
+              {/* "Booking ID" label in middle */}
+              <Text style={[styles.bookingLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                Booking ID
               </Text>
-              <Text style={[styles.detailedTrackingNumber, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+              
+              {/* Actual ID on bottom */}
+              <Text style={[styles.bookingId, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
                 #{formatShipmentTitle(shipment)}
               </Text>
             </View>
-            <StatusPill status={shipment.status} variant="solid" />
-          </View>
 
-          {/* Progress Timeline */}
-          {showProgress && (
-            <View style={styles.progressContainer}>
-              <View style={[styles.progressTrack, { backgroundColor: theme.semantic.border || tokens.colors.timelineInactive }]}>
-                <View style={[styles.progressStart, { backgroundColor: tokens.colors.timelineDot }]} />
-                <View
-                  style={[
-                    styles.progressBar,
-                    { 
-                      width: `${progress}%`, 
-                      backgroundColor: tokens.colors.timelineActive 
-                    },
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.progressEnd,
-                    {
-                      backgroundColor: progress === 100 ? tokens.colors.timelineActive : (theme.semantic.surface || tokens.colors.surface),
-                      borderColor: tokens.colors.timelineDot,
-                    },
-                  ]}
-                />
+            {/* RIGHT SIDE - Illustration */}
+            <View style={styles.cardRightContent}>
+              <View style={styles.packageContainer}>
+                <View style={styles.packageBox}>
+                  <View style={styles.packageTopFace} />
+                  <View style={styles.packageFrontFace} />
+                  <View style={styles.packageSideFace} />
+                  {/* Shipping label detail */}
+                  <View style={styles.packageLabel}>
+                    <View style={[styles.packageLabelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                    <View style={[styles.packageLabelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                    <View style={[styles.packageLabelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                  </View>
+                </View>
               </View>
             </View>
-          )}
-
-          {/* Location Info Grid */}
-          <View style={styles.infoGrid}>
-            <View style={styles.infoColumn}>
-              <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                From
-              </Text>
-              <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-                {originInfo?.location || 'N/A'}
-              </Text>
-              <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                {originInfo?.date.split(',')[0] || 'N/A'}
-              </Text>
-            </View>
-
-            <View style={styles.infoColumn}>
-              <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                To
-              </Text>
-              <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-                {destinationInfo?.location || 'N/A'}
-              </Text>
-              <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                {destinationInfo?.date.split(',')[0] || 'N/A'}
-              </Text>
-            </View>
           </View>
 
-          <View style={styles.infoGrid}>
-            <View style={styles.infoColumn}>
-              <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                Created
-              </Text>
-              <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-                {originInfo?.date || 'N/A'}
-              </Text>
-            </View>
-          </View>
+          {/* BOTTOM HALF - Full width content */}
+          <View style={styles.cardBottomSection}>
+            {/* Progress Timeline */}
+            {showProgress && (
+              <View style={styles.progressContainer}>
+                <View style={[styles.progressTrack, { backgroundColor: theme.semantic.border || tokens.colors.timelineInactive }]}>
+                  <View style={[styles.progressStart, { backgroundColor: tokens.colors.timelineDot }]} />
+                  <View
+                    style={[
+                      styles.progressBar,
+                      { 
+                        width: `${progress}%`, 
+                        backgroundColor: tokens.colors.timelineActive 
+                      },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.progressEnd,
+                      {
+                        backgroundColor: progress === 100 ? tokens.colors.timelineActive : (theme.semantic.surface || tokens.colors.surface),
+                        borderColor: tokens.colors.timelineDot,
+                      },
+                    ]}
+                  />
+                </View>
+              </View>
+            )}
 
-          {/* Sender and Receiver info from API */}
-          {(shipment.senderName || shipment.receiverName) && (
+            {/* Location Info Grid */}
             <View style={styles.infoGrid}>
               <View style={styles.infoColumn}>
                 <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                  Sender
+                  From
                 </Text>
                 <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-                  {shipment.senderName || 'N/A'}
+                  {originInfo?.location || 'N/A'}
                 </Text>
-                {shipment.senderPhone && (
-                  <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                    {shipment.senderPhone}
-                  </Text>
-                )}
+                <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                  {originInfo?.date.split(',')[0] || 'N/A'}
+                </Text>
               </View>
 
               <View style={styles.infoColumn}>
                 <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                  Receiver
+                  To
                 </Text>
                 <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-                  {shipment.receiverName || 'N/A'}
+                  {destinationInfo?.location || 'N/A'}
                 </Text>
-                {shipment.receiverPhone && (
-                  <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                    {shipment.receiverPhone}
-                  </Text>
-                )}
+                <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                  {destinationInfo?.date.split(',')[0] || 'N/A'}
+                </Text>
               </View>
             </View>
-          )}
-        </View>
 
-        {/* 3D Package Illustration */}
-        <View style={styles.packageIllustration}>
-          <View style={styles.packageBox}>
-            <View style={styles.packageTop} />
-            <View style={styles.packageFront} />
-            <View style={styles.packageSide} />
-            {/* Shipping label detail */}
-            <View style={styles.shippingLabel}>
-              <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
-              <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
-              <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+            <View style={styles.infoGrid}>
+              <View style={styles.infoColumn}>
+                <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                  Created
+                </Text>
+                <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                  {originInfo?.date || 'N/A'}
+                </Text>
+              </View>
             </View>
-            {/* Tape arrow */}
-            <View style={styles.tapeArrow}>
-              <Text style={styles.arrowText}>↑</Text>
-            </View>
+
+            {/* Sender and Receiver info from API */}
+            {(shipment.senderName || shipment.receiverName) && (
+              <View style={styles.infoGrid}>
+                <View style={styles.infoColumn}>
+                  <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                    Sender
+                  </Text>
+                  <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                    {shipment.senderName || 'N/A'}
+                  </Text>
+                  {shipment.senderPhone && (
+                    <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                      {shipment.senderPhone}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={styles.infoColumn}>
+                  <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                    Receiver
+                  </Text>
+                  <Text style={[styles.infoValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                    {shipment.receiverName || 'N/A'}
+                  </Text>
+                  {shipment.receiverPhone && (
+                    <Text style={[styles.infoMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                      {shipment.receiverPhone}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            )}
           </View>
         </View>
 
@@ -237,54 +246,109 @@ const ShipmentCardComponent: React.FC<ShipmentCardProps> = ({
       }}
       {...pressableProps}
     >
-      <View style={styles.headerRow}>
-        <View style={styles.titleColumn}>
-          <Text style={[styles.title, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+      {/* TOP HALF */}
+      <View style={styles.cardTopSection}>
+        {/* LEFT SIDE */}
+        <View style={styles.cardLeftContent}>
+          {/* Status on top */}
+          <View style={styles.statusContainer}>
+            <StatusPill status={shipment.status} variant="solid" />
+          </View>
+          
+          {/* "Booking ID" label in middle */}
+          <Text style={[styles.bookingLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+            Booking ID
+          </Text>
+          
+          {/* Actual ID on bottom */}
+          <Text style={[styles.bookingId, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
             #{formatShipmentTitle(shipment)}
           </Text>
-          <Text style={[styles.subtitle, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-            {formatShipmentSubtitle(shipment)}
-          </Text>
         </View>
-        <StatusPill status={shipment.status} variant="solid" />
-      </View>
-      
-      {showProgress && (
-        <View style={styles.progressContainer}>
-          <View style={[styles.progressTrack, { backgroundColor: theme.semantic.border || tokens.colors.timelineInactive }]}>
-            <View style={[styles.progressStart, { backgroundColor: tokens.colors.timelineDot }]} />
-            <View
-              style={[
-                styles.progressBar,
-                { 
-                  width: `${progress}%`, 
-                  backgroundColor: tokens.colors.timelineActive 
-                },
-              ]}
-            />
-            <View
-              style={[
-                styles.progressEnd,
-                {
-                  backgroundColor: progress === 100 ? tokens.colors.timelineActive : (theme.semantic.surface || tokens.colors.surface),
-                  borderColor: tokens.colors.timelineDot,
-                },
-              ]}
-            />
+
+        {/* RIGHT SIDE - Illustration */}
+        <View style={styles.cardRightContent}>
+          <View style={styles.packageContainer}>
+            <View style={styles.packageBox}>
+              <View style={styles.packageTopFace} />
+              <View style={styles.packageFrontFace} />
+              <View style={styles.packageSideFace} />
+              {/* Shipping label detail */}
+              <View style={styles.packageLabel}>
+                <View style={[styles.packageLabelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                <View style={[styles.packageLabelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                <View style={[styles.packageLabelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+              </View>
+            </View>
           </View>
         </View>
-      )}
+      </View>
 
-      {latestUpdate ? (
-        <View style={styles.updateWrapper}>
-          <Text style={[styles.updateLabel, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-            {latestUpdate.label}
-          </Text>
-          <Text style={[styles.updateMeta, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-            {latestUpdate.location ? `${latestUpdate.location} · ` : ''}{formatAbsoluteTime(latestUpdate.timeIso)}
-          </Text>
+      {/* BOTTOM HALF - Full width content */}
+      <View style={styles.cardBottomSection}>
+        {/* Progress Timeline */}
+        {showProgress && (
+          <View style={styles.progressContainer}>
+            <View style={[styles.progressTrack, { backgroundColor: theme.semantic.border || tokens.colors.timelineInactive }]}>
+              <View style={[styles.progressStart, { backgroundColor: tokens.colors.timelineDot }]} />
+              <View
+                style={[
+                  styles.progressBar,
+                  { 
+                    width: `${progress}%`, 
+                    backgroundColor: tokens.colors.timelineActive 
+                  },
+                ]}
+              />
+              <View
+                style={[
+                  styles.progressEnd,
+                  {
+                    backgroundColor: progress === 100 ? tokens.colors.timelineActive : (theme.semantic.surface || tokens.colors.surface),
+                    borderColor: tokens.colors.timelineDot,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        )}
+
+        {/* Location Info - Full width */}
+        <View style={styles.locationRow}>
+          <View style={styles.locationItem}>
+            <Text style={[styles.locationLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+              From
+            </Text>
+            <Text 
+              style={[styles.locationValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {originInfo?.location || 'N/A'}
+            </Text>
+          </View>
+          
+          <View style={styles.locationItem}>
+            <Text style={[styles.locationLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+              To
+            </Text>
+            <Text 
+              style={[styles.locationValue, { color: theme.semantic.text || tokens.colors.textPrimary }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {destinationInfo?.location || 'N/A'}
+            </Text>
+          </View>
         </View>
-      ) : null}
+
+        {/* Latest Update */}
+        {latestUpdate && (
+          <Text style={[styles.updateText, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+            {latestUpdate.location || 'Update'} • {formatAbsoluteTime(latestUpdate.timeIso)}
+          </Text>
+        )}
+      </View>
       {footer ? <View style={styles.footer}>{footer}</View> : null}
     </Pressable>
   );
@@ -371,7 +435,6 @@ const styles = StyleSheet.create({
   },
   detailedContent: {
     padding: tokens.spacing.lg,
-    paddingRight: 140, // Add space for package illustration
     gap: tokens.spacing.md,
   },
   detailedHeader: {
@@ -405,78 +468,113 @@ const styles = StyleSheet.create({
     ...tokens.typography.caption,
   },
 
-  // Package illustration
-  packageIllustration: {
-    position: 'absolute',
-    right: tokens.spacing.lg,
-    bottom: tokens.spacing.lg,
-    width: 120,
-    height: 120,
+  // Card layout styles
+  cardTopSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: tokens.spacing.md,
+  },
+  cardLeftContent: {
+    flex: 1,
+    gap: tokens.spacing.xs,
+  },
+  statusContainer: {
+    alignSelf: 'flex-start',
+    marginLeft: -tokens.spacing.sm, // Align text content with "Booking ID" text
+  },
+  cardRightContent: {
+    marginLeft: tokens.spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardBottomSection: {
+    gap: tokens.spacing.sm,
+  },
+  bookingLabel: {
+    ...tokens.typography.caption,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  bookingId: {
+    ...tokens.typography.h3,
+    fontWeight: '700',
+  },
+  
+  // Package illustration styles
+  packageContainer: {
+    width: 80,
+    height: 80,
   },
   packageBox: {
     width: '100%',
     height: '100%',
     position: 'relative',
   },
-  packageTop: {
+  packageTopFace: {
     position: 'absolute',
     top: 0,
-    right: 15,
-    width: 60,
-    height: 40,
-    backgroundColor: tokens.colors.packageLight,
-    borderRadius: tokens.spacing.xxs,
+    right: 10,
+    width: 40,
+    height: 25,
+    backgroundColor: '#FFD88F', // Use hardcoded light color for debugging
+    borderRadius: 4,
     transform: [{ skewY: '-20deg' }],
   },
-  packageFront: {
+  packageFrontFace: {
     position: 'absolute',
     bottom: 0,
     left: 0,
-    width: 70,
-    height: 70,
-    backgroundColor: tokens.colors.packageOrange,
-    borderRadius: tokens.spacing.xxs,
+    width: 45,
+    height: 45,
+    backgroundColor: '#FFBE5C', // Use hardcoded orange for debugging
+    borderRadius: 4,
   },
-  packageSide: {
+  packageSideFace: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 50,
-    height: 70,
-    backgroundColor: tokens.colors.packageDark,
-    borderRadius: tokens.spacing.xxs,
+    width: 32,
+    height: 45,
+    backgroundColor: '#8B5A3C', // Use hardcoded dark color for debugging
+    borderRadius: 4,
     transform: [{ skewY: '20deg' }],
   },
-  shippingLabel: {
+  packageLabel: {
     position: 'absolute',
-    bottom: 20,
-    left: 10,
-    width: 30,
-    height: 30,
+    bottom: 12,
+    left: 6,
+    width: 18,
+    height: 18,
     backgroundColor: tokens.colors.surface,
-    borderRadius: 2,
-    padding: 4,
-    gap: 2,
-    justifyContent: 'center',
-  },
-  labelLine: {
-    height: 1.5,
     borderRadius: 1,
-  },
-  tapeArrow: {
-    position: 'absolute',
-    bottom: 50,
-    right: 10,
-    width: 24,
-    height: 24,
-    backgroundColor: tokens.colors.packageDark,
-    borderRadius: 12,
+    padding: 2,
+    gap: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  arrowText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: tokens.colors.surface,
+  packageLabelLine: {
+    height: 1,
+    borderRadius: 0.5,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: tokens.spacing.md,
+  },
+  locationItem: {
+    flex: 1,
+    gap: tokens.spacing.xxs,
+  },
+  locationLabel: {
+    ...tokens.typography.caption,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  locationValue: {
+    ...tokens.typography.smallSemibold,
+  },
+  updateText: {
+    ...tokens.typography.caption,
+    fontStyle: 'italic',
   },
 });
