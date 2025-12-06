@@ -165,7 +165,11 @@ export const HomeScreen: React.FC = () => {
               </View>
             </View>
 
-            <Pressable style={styles.notificationButton}>
+            <Pressable 
+              style={styles.notificationButton}
+              onPress={() => navigation.navigate(ROUTES.Notifications)}
+              accessibilityLabel="View notifications"
+            >
               <Bell color={theme.semantic.text} size={24} />
               <View style={styles.notificationBadge} />
             </Pressable>
@@ -362,7 +366,7 @@ const styles = StyleSheet.create({
 
   trackingSection: {
     marginTop: tokens.spacing.md,
-    marginHorizontal: tokens.spacing.lg,
+    marginHorizontal: tokens.spacing.md,
     padding: tokens.spacing.md,
     borderRadius: tokens.radii.card,
     gap: tokens.spacing.sm,

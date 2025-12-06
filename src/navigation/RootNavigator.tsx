@@ -26,6 +26,7 @@ import { ProfileScreen } from '@/screens/Profile';
 import { ShipmentDetailsScreen } from '@/screens/ShipmentDetails';
 import { AddTrackingSheetScreen } from '@/screens/AddTrackingSheet';
 import { PlaceOrderScreen } from '@/screens/PlaceOrder';
+import { NotificationsScreen } from '@/screens/Notifications';
 
 // Driver screens
 import { DriverDeliveryDetailsScreen, AvailablePackagesScreen } from '@/screens/driver';
@@ -175,6 +176,7 @@ export const RootNavigator = () => {
         {/* PUSH SCREENS */}
         <Stack.Screen name={ROUTES.Profile} component={ProfileScreen} options={PremiumSlideRight} />
         <Stack.Screen name={ROUTES.ShipmentDetails} component={ShipmentDetailsScreen} options={PremiumSlideRight} />
+        <Stack.Screen name={ROUTES.Notifications} component={NotificationsScreen} options={PremiumSlideRight} />
 
         {/* MODALS + SHEETS */}
         <Stack.Screen name={ROUTES.AddTracking} component={AddTrackingSheetScreen} options={PremiumModal} />

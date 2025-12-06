@@ -106,15 +106,29 @@ export const CourierCard: React.FC<CourierCardProps> = ({
       ]}
     >
       <View style={styles.cardContent}>
-        {/* Status Badge */}
-        <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
-          <Text style={styles.statusText}>{getStatusLabel()}</Text>
-        </View>
+        {/* Header section with status, tracking number, and package illustration */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerLeft}>
+            {/* Status Badge */}
+            <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
+              <Text style={styles.statusText}>{getStatusLabel()}</Text>
+            </View>
 
-        {/* Tracking Number */}
-        <Text style={[styles.trackingNumber, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-          #{trackingNumber}
-        </Text>
+            {/* Tracking Number */}
+            <Text style={[styles.trackingNumber, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+              #{trackingNumber}
+            </Text>
+          </View>
+
+          {/* Package Illustration */}
+          <View style={styles.packageIllustration}>
+            <Image 
+              source={packageImage} 
+              style={styles.packageImage}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
 
         {/* Progress Timeline */}
         <View style={styles.timelineContainer}>
@@ -177,22 +191,13 @@ export const CourierCard: React.FC<CourierCardProps> = ({
           </View>
         </View>
       </View>
-
-      {/* Package Illustration */}
-      <View style={styles.packageIllustration}>
-        <Image 
-          source={packageImage} 
-          style={styles.packageImage}
-          resizeMode="contain"
-        />
-      </View>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: tokens.spacing.lg, // Re-add margins
+    marginHorizontal: 0,
     marginBottom: tokens.spacing.md,
     borderRadius: tokens.radii.card,
     overflow: 'visible',
@@ -200,9 +205,18 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: tokens.spacing.lg,
-    paddingRight: 140, // More space for larger package
     gap: tokens.spacing.md,
-    minHeight: 140, // Make card taller
+    minHeight: 120, // Reduced since package is now at top
+  },
+  headerSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 0,
+  },
+  headerLeft: {
+    flex: 1,
+    gap: tokens.spacing.sm,
   },
   statusBadge: {
     alignSelf: 'flex-start',
@@ -216,9 +230,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   trackingNumber: {
-    fontSize: 20,
-    fontWeight: '700',
-    lineHeight: 26,
+    ...tokens.typography.h3,
+    color: tokens.colors.textPrimary,
   },
   timelineContainer: {
     paddingHorizontal: 0,
@@ -282,11 +295,9 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   packageIllustration: {
-    position: 'absolute',
-    right: tokens.spacing.lg,
-    bottom: tokens.spacing.lg,
-    width: 120,
-    height: 120,
+    width: 80,
+    height: 80,
+    marginLeft: tokens.spacing.md,
   },
   packageImage: {
     width: '100%',

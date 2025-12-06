@@ -9,6 +9,7 @@ export const ROUTES = {
   ShipmentDetails: 'ShipmentDetails',
   AddTracking: 'AddTracking',
   PlaceOrder: 'PlaceOrder',
+  Notifications: 'Notifications',
   // Driver-specific routes
   DriverDeliveryDetails: 'DriverDeliveryDetails',
   AvailablePackages: 'AvailablePackages',

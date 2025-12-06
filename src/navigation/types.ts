@@ -25,6 +25,7 @@ export type RootStackParamList = {
   ShipmentDetails: { shipmentId: string };
   AddTracking: undefined;
   PlaceOrder: undefined;
+  Notifications: undefined;
   // Driver-specific routes
   DriverDeliveryDetails: { deliveryId: number };
   AvailablePackages: undefined;
