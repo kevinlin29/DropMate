@@ -10,9 +10,7 @@ import {
   FlatList,
   PanResponder,
   Pressable,
-  ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
@@ -36,8 +34,6 @@ import { ROUTES } from '@/constants/routes';
 import { RootStackParamList } from '@/navigation/types';
 import { formatShipmentTitle } from '@/utils/format';
 import { FEATURE_FLAGS } from '@/constants/featureFlags';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { setDriverMode } from '@/store/slices/driverSlice';
 import { SearchBar } from '@/components/SearchBar';
 
 export const MapScreen: React.FC = () => {
@@ -46,10 +42,6 @@ export const MapScreen: React.FC = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [search, setSearch] = useState('');
-  const dispatch = useAppDispatch();
-  const isDriverMode = useAppSelector((state) => state.driver.isDriverMode);
-
-  // useDriverLocationSimulator(false);
 
   const { data: shipments } = useShipmentsListQuery({ query: search });
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
@@ -407,146 +399,9 @@ export const MapScreen: React.FC = () => {
               Track Package
             </Text>
           </View>
-          <View style={styles.toggleContainer}>
-            <Text
-              style={[
-                styles.modeLabel,
-                {
-                  color:
-                    theme.semantic.textMuted ||
-                    tokens.colors.textSecondary,
-                },
-              ]}
-            >
-              Driver Mode
-            </Text>
-            <Switch
-              value={isDriverMode}
-              onValueChange={(value) => dispatch(setDriverMode(value))}
-              trackColor={{
-                false:
-                  theme.semantic.border || tokens.colors.border,
-                true:
-                  theme.semantic.text || tokens.colors.textPrimary,
-              }}
-              thumbColor={tokens.colors.surface}
-            />
-          </View>
         </View>
 
-        {isDriverMode ? (
-          // ---------------------- Driver Mode ----------------------
-          <View style={styles.driverContent}>
-            <Text
-              style={[
-                styles.driverMessage,
-                { color: theme.semantic.text || tokens.colors.textPrimary },
-              ]}
-            >
-              Driver mode: View all deliveries
-            </Text>
-            <ScrollView
-              style={styles.driverList}
-              showsVerticalScrollIndicator={false}
-            >
-              {shipments && shipments.length > 0 ? (
-                shipments
-                  .filter(
-                    (s) =>
-                      s.status === 'OUT_FOR_DELIVERY' ||
-                      s.status === 'IN_TRANSIT',
-                  )
-                  .map((shipment) => (
-                    <Pressable
-                      key={shipment.id}
-                      style={[
-                        styles.deliveryCard,
-                        {
-                          backgroundColor:
-                            theme.semantic.surface ||
-                            tokens.colors.surface,
-                          borderColor:
-                            theme.semantic.border ||
-                            tokens.colors.border,
-                        },
-                      ]}
-                      onPress={() => handleOpenDetails(shipment.id)}
-                    >
-                      <View style={styles.deliveryCardHeader}>
-                        <Text
-                          style={[
-                            styles.deliveryTitle,
-                            {
-                              color:
-                                theme.semantic.text ||
-                                tokens.colors.textPrimary,
-                            },
-                          ]}
-                        >
-                          #{formatShipmentTitle(shipment)}
-                        </Text>
-                        <View
-                          style={[
-                            styles.statusBadge,
-                            {
-                              backgroundColor:
-                                shipment.status === 'OUT_FOR_DELIVERY'
-                                  ? tokens.colors.statusOutForDelivery
-                                  : tokens.colors.statusInTransit,
-                            },
-                          ]}
-                        >
-                          <Text style={styles.statusText}>
-                            {shipment.status === 'OUT_FOR_DELIVERY'
-                              ? 'URGENT'
-                              : 'ACTIVE'}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text
-                        style={[
-                          styles.deliveryLocation,
-                          {
-                            color:
-                              theme.semantic.textMuted ||
-                              tokens.colors.textSecondary,
-                          },
-                        ]}
-                      >
-                        {shipment.checkpoints[
-                          shipment.checkpoints.length - 1
-                        ]?.location || 'Unknown location'}
-                      </Text>
-                    </Pressable>
-                  ))
-              ) : (
-                <View style={styles.emptyDriver}>
-                  <Package
-                    size={48}
-                    color={
-                      theme.semantic.textMuted ||
-                      tokens.colors.textMuted
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.emptyText,
-                      {
-                        color:
-                          theme.semantic.textMuted ||
-                          tokens.colors.textSecondary,
-                      },
-                    ]}
-                  >
-                    No active deliveries
-                  </Text>
-                </View>
-              )}
-            </ScrollView>
-          </View>
-        ) : (
-          // ---------------------- User Mode ----------------------
-          <View style={styles.userModeContent}>
+        <View style={styles.userModeContent}>
             <SearchBar
               value={search}
               onChangeText={setSearch}
@@ -699,7 +554,6 @@ export const MapScreen: React.FC = () => {
               </View>
             )}
           </View>
-        )}
       </Animated.View>
     </SafeAreaView>
   );
@@ -743,14 +597,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...tokens.typography.h4,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.xs,
-  },
-  modeLabel: {
-    ...tokens.typography.captionSemibold,
   },
 
   userModeContent: {
@@ -844,55 +690,4 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 
-  driverContent: {
-    flex: 1,
-    gap: tokens.spacing.sm,
-  },
-  driverMessage: {
-    ...tokens.typography.smallMedium,
-    paddingVertical: tokens.spacing.xs,
-  },
-  driverList: {
-    flex: 1,
-  },
-  deliveryCard: {
-    padding: tokens.spacing.md,
-    borderRadius: tokens.radii.md,
-    borderWidth: 1,
-    marginBottom: tokens.spacing.sm,
-    gap: tokens.spacing.xs,
-    ...tokens.shadows.sm,
-  },
-  deliveryCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: tokens.spacing.xxs,
-  },
-  deliveryTitle: {
-    ...tokens.typography.h4,
-    flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: tokens.spacing.xs,
-    paddingVertical: tokens.spacing.xxs,
-    borderRadius: tokens.radii.xs,
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: tokens.colors.surface,
-  },
-  deliveryLocation: {
-    ...tokens.typography.small,
-  },
-  emptyDriver: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: tokens.spacing.xxxl + 20,
-    gap: tokens.spacing.sm,
-  },
-  emptyText: {
-    ...tokens.typography.h4,
-  },
 });

@@ -41,7 +41,7 @@ export const AnimatedTabs = () => {
   const theme = useTheme();
 
   // React state for current tab (allowed in render)
-  const [activeTab, setActiveTab] = useState('HomeTab');
+  const [activeTab, setActiveTab] = useState('Home');
 
   return (
     <Tab.Navigator
@@ -70,10 +70,10 @@ export const AnimatedTabs = () => {
         },
         tabBarIcon: ({ focused, color }) => {
           const icons = {
-            HomeTab: Home,
-            TrackTab: Search,
-            MapTab: MapIcon,
-            SettingsTab: SettingsIcon,
+            Home: Home,
+            Track: Search,
+            Map: MapIcon,
+            Settings: SettingsIcon,
           };
 
           const Icon = icons[route.name];
@@ -90,21 +90,21 @@ export const AnimatedTabs = () => {
         },
       })}
     >
-      <Tab.Screen name="HomeTab">
-        {() => <FadeWrapper isActive={activeTab === 'HomeTab'}><HomeScreen /></FadeWrapper>}
+      <Tab.Screen name="Home">
+        {() => <FadeWrapper isActive={activeTab === 'Home'}><HomeScreen /></FadeWrapper>}
       </Tab.Screen>
 
-      <Tab.Screen name="TrackTab">
-        {() => <FadeWrapper isActive={activeTab === 'TrackTab'}><TrackScreen /></FadeWrapper>}
+      <Tab.Screen name="Track">
+        {() => <FadeWrapper isActive={activeTab === 'Track'}><TrackScreen /></FadeWrapper>}
       </Tab.Screen>
 
-      <Tab.Screen name="MapTab">
-        {() => <FadeWrapper isActive={activeTab === 'MapTab'}><MapScreen /></FadeWrapper>}
+      <Tab.Screen name="Map">
+        {() => <FadeWrapper isActive={activeTab === 'Map'}><MapScreen /></FadeWrapper>}
       </Tab.Screen>
 
-      <Tab.Screen name="SettingsTab">
+      <Tab.Screen name="Settings">
         {() => (
-          <FadeWrapper isActive={activeTab === 'SettingsTab'}>
+          <FadeWrapper isActive={activeTab === 'Settings'}>
             <SettingsScreen />
           </FadeWrapper>
         )}

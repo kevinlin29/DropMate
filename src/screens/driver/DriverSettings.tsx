@@ -19,6 +19,9 @@ import {
   Shield,
 } from 'lucide-react-native';
 import { signOut } from 'firebase/auth';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useTheme } from '@/theme/ThemeProvider';
 import { tokens } from '@/theme/tokens';
@@ -26,6 +29,8 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { clearDriverData, setOnlineStatus } from '@/store/slices/driverSlice';
 import { auth } from '@/config/firebase';
 import { DriverStatusToggle } from '@/components/driver/DriverStatusToggle';
+import { RootStackParamList } from '@/navigation/types';
+import { ROUTES } from '@/constants/routes';
 
 type SettingItemProps = {
   icon: React.ComponentType<{ color: string; size: number }>;
@@ -91,6 +96,8 @@ const SettingItem: React.FC<SettingItemProps> = ({
 export const DriverSettingsScreen: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const driverName = useAppSelector((state) => state.driver.driverName);
   const vehicleInfo = useAppSelector((state) => state.driver.vehicleInfo);
@@ -116,7 +123,11 @@ export const DriverSettingsScreen: React.FC = () => {
           onPress: async () => {
             try {
               dispatch(clearDriverData());
+              // Clear all React Query cache to remove stale user profile data
+              queryClient.clear();
               await signOut(auth);
+              // Navigate to login screen
+              navigation.reset({ index: 0, routes: [{ name: ROUTES.Login }] });
             } catch (error) {
               console.error('Sign out error:', error);
             }
@@ -124,7 +135,7 @@ export const DriverSettingsScreen: React.FC = () => {
         },
       ]
     );
-  }, [dispatch]);
+  }, [dispatch, queryClient, navigation]);
 
   return (
     <SafeAreaView

@@ -15,10 +15,10 @@ export const ROUTES = {
 } as const;
 
 export const TABS = {
-  Home: 'HomeTab',
-  Track: 'TrackTab',
-  Map: 'MapTab',
-  Settings: 'SettingsTab',
+  Home: 'Home',
+  Track: 'Track',
+  Map: 'Map',
+  Settings: 'Settings',
 } as const;
 
 export const DRIVER_TABS = {

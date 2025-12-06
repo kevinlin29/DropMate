@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LogOut, Truck } from 'lucide-react-native';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { NotificationsGate } from '@/features/notifications/NotificationsGate';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -22,12 +23,15 @@ export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const themePreference = useAppSelector((state) => state.ui.themePreference);
   const { data: userProfile } = useUserProfileQuery();
 
   const isCustomer = userProfile?.role === 'customer';
 
   const handleSignOut = async () => {
+    // Clear all React Query cache to remove stale user profile data
+    queryClient.clear();
     await dispatch(signOutThunk());
     navigation.reset({ index: 0, routes: [{ name: ROUTES.Login }] });
   };

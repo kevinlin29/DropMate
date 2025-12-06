@@ -76,8 +76,8 @@ const RoleBasedMainScreen = () => {
     );
   }
 
-  // Show driver tabs if user is a driver
-  if (userProfile?.role === 'driver') {
+  // Show driver tabs if user is authenticated AND is a driver
+  if (isAuthenticated && userProfile?.role === 'driver') {
     console.log('[RoleBasedMainScreen] Showing DriverTabs');
     return <DriverTabs />;
   }
@@ -115,9 +115,9 @@ const BottomTabs = () => {
         tabBarIcon: ({ focused, color }) => {
           let IconComponent;
           switch (route.name) {
-            case 'HomeTab': IconComponent = Home; break;
-            case 'TrackTab': IconComponent = Search; break;
-            case 'MapTab': IconComponent = MapIcon; break;
+            case 'Home': IconComponent = Home; break;
+            case 'Track': IconComponent = Search; break;
+            case 'Map': IconComponent = MapIcon; break;
             default: IconComponent = SettingsIcon;
           }
 
@@ -132,13 +132,13 @@ const BottomTabs = () => {
           return <IconComponent color={color} size={24} strokeWidth={2} />;
         },
         tabBarLabel: ({ focused, color }) =>
-          focused ? null : <Text style={[styles.tabLabel, { color }]}>{route.name.replace('Tab','')}</Text>,
+          focused ? null : <Text style={[styles.tabLabel, { color }]}>{route.name}</Text>,
       })}
     >
-      <Tab.Screen name="HomeTab" component={HomeScreen} />
-      <Tab.Screen name="TrackTab" component={TrackScreen} />
-      <Tab.Screen name="MapTab" component={MapScreen} />
-      <Tab.Screen name="SettingsTab" component={SettingsScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Track" component={TrackScreen} />
+      <Tab.Screen name="Map" component={MapScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 };

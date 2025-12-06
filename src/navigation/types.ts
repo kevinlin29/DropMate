@@ -2,10 +2,10 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 
 // Customer bottom tabs
 export type BottomTabParamList = {
-  HomeTab: undefined;
-  TrackTab: undefined;
-  MapTab: undefined;
-  SettingsTab: undefined;
+  Home: undefined;
+  Track: undefined;
+  Map: undefined;
+  Settings: undefined;
 };
 
 // Driver bottom tabs
