@@ -94,12 +94,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: tokens.radii.badge,
-    paddingHorizontal: tokens.spacing.sm,
-    paddingVertical: tokens.spacing.xxs + 2,
+    paddingHorizontal: tokens.spacing.xs,
+    paddingVertical: tokens.spacing.xxs,
   },
   labelSolid: {
     color: tokens.colors.surface,
-    ...tokens.typography.badge,
+    fontSize: 10,
+    fontWeight: '600',
+    lineHeight: 14,
   },
   
   // Outlined variant (original design)

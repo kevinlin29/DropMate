@@ -27,6 +27,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<BottomTabParamList> | NavigatorScreenParams<DriverTabParamList> | undefined;
   // Customer screens
   Profile: undefined;
+  Messages: undefined;
   ShipmentDetails: { shipmentId: string };
   AddTracking: undefined;
   PlaceOrder: undefined;

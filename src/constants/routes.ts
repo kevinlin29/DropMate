@@ -6,6 +6,7 @@ export const ROUTES = {
   ForgotPassword: 'ForgotPassword',
   Main: 'Main',
   Profile: 'Profile',
+  Messages: 'Messages',
   ShipmentDetails: 'ShipmentDetails',
   AddTracking: 'AddTracking',
   PlaceOrder: 'PlaceOrder',

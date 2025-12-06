@@ -82,17 +82,43 @@ const ShipmentCardComponent: React.FC<ShipmentCardProps> = ({
         {...pressableProps}
       >
         <View style={styles.detailedContent}>
-          {/* Header Row */}
-          <View style={styles.detailedHeader}>
-            <View>
-              <Text style={[styles.detailedLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
-                Booking id
-              </Text>
-              <Text style={[styles.detailedTrackingNumber, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
-                #{formatShipmentTitle(shipment)}
-              </Text>
+          {/* Header Row: Stacked Info and Illustration */}
+          <View style={styles.headerRow}>
+            <View style={styles.headerInfo}>
+              {/* Status Badge */}
+              <View style={styles.statusContainer}>
+                <StatusPill status={shipment.status} variant="solid" />
+              </View>
+              
+              {/* Booking ID */}
+              <View>
+                <Text style={[styles.detailedLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
+                  Booking id
+                </Text>
+                <Text style={[styles.detailedBookingId, { color: theme.semantic.text || tokens.colors.textPrimary }]}>
+                  #{formatShipmentTitle(shipment)}
+                </Text>
+              </View>
             </View>
-            <StatusPill status={shipment.status} variant="solid" />
+
+            {/* Package Illustration */}
+            <View style={styles.packageIllustration}>
+              <View style={styles.packageBox}>
+                <View style={styles.packageTop} />
+                <View style={styles.packageFront} />
+                <View style={styles.packageSide} />
+                {/* Shipping label detail */}
+                <View style={styles.shippingLabel}>
+                  <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                  <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                  <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
+                </View>
+                {/* Tape arrow */}
+                <View style={styles.tapeArrow}>
+                  <Text style={styles.arrowText}>↑</Text>
+                </View>
+              </View>
+            </View>
           </View>
 
           {/* Progress Timeline */}
@@ -149,6 +175,7 @@ const ShipmentCardComponent: React.FC<ShipmentCardProps> = ({
             </View>
           </View>
 
+          {/* Created Date */}
           <View style={styles.infoGrid}>
             <View style={styles.infoColumn}>
               <Text style={[styles.infoLabel, { color: theme.semantic.textMuted || tokens.colors.textSecondary }]}>
@@ -192,25 +219,6 @@ const ShipmentCardComponent: React.FC<ShipmentCardProps> = ({
               </View>
             </View>
           )}
-        </View>
-
-        {/* 3D Package Illustration */}
-        <View style={styles.packageIllustration}>
-          <View style={styles.packageBox}>
-            <View style={styles.packageTop} />
-            <View style={styles.packageFront} />
-            <View style={styles.packageSide} />
-            {/* Shipping label detail */}
-            <View style={styles.shippingLabel}>
-              <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
-              <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
-              <View style={[styles.labelLine, { backgroundColor: tokens.colors.textPrimary }]} />
-            </View>
-            {/* Tape arrow */}
-            <View style={styles.tapeArrow}>
-              <Text style={styles.arrowText}>↑</Text>
-            </View>
-          </View>
         </View>
 
         {footer ? <View style={styles.footer}>{footer}</View> : null}
@@ -371,21 +379,25 @@ const styles = StyleSheet.create({
   },
   detailedContent: {
     padding: tokens.spacing.lg,
-    paddingRight: 140, // Add space for package illustration
     gap: tokens.spacing.md,
   },
-  detailedHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  headerInfo: {
+    flex: 1,
     gap: tokens.spacing.sm,
+  },
+  statusContainer: {
+    alignSelf: 'flex-start',
+    marginLeft: -tokens.spacing.xxs - 2,
+    marginRight: tokens.spacing.xxs + 2,
   },
   detailedLabel: {
     ...tokens.typography.caption,
-    marginBottom: tokens.spacing.xxs,
+    marginBottom: 2,
   },
-  detailedTrackingNumber: {
-    ...tokens.typography.trackingNumber,
+  detailedBookingId: {
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 24,
   },
   infoGrid: {
     flexDirection: 'row',
@@ -407,11 +419,9 @@ const styles = StyleSheet.create({
 
   // Package illustration
   packageIllustration: {
-    position: 'absolute',
-    right: tokens.spacing.lg,
-    bottom: tokens.spacing.lg,
-    width: 120,
-    height: 120,
+    width: 70,
+    height: 70,
+    flexShrink: 0,
   },
   packageBox: {
     width: '100%',
@@ -421,9 +431,9 @@ const styles = StyleSheet.create({
   packageTop: {
     position: 'absolute',
     top: 0,
-    right: 15,
-    width: 60,
-    height: 40,
+    right: 10,
+    width: 40,
+    height: 25,
     backgroundColor: tokens.colors.packageLight,
     borderRadius: tokens.spacing.xxs,
     transform: [{ skewY: '-20deg' }],
@@ -432,8 +442,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     left: 0,
-    width: 70,
-    height: 70,
+    width: 45,
+    height: 45,
     backgroundColor: tokens.colors.packageOrange,
     borderRadius: tokens.spacing.xxs,
   },
@@ -441,41 +451,41 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 50,
-    height: 70,
+    width: 35,
+    height: 45,
     backgroundColor: tokens.colors.packageDark,
     borderRadius: tokens.spacing.xxs,
     transform: [{ skewY: '20deg' }],
   },
   shippingLabel: {
     position: 'absolute',
-    bottom: 20,
-    left: 10,
-    width: 30,
-    height: 30,
+    bottom: 12,
+    left: 6,
+    width: 20,
+    height: 20,
     backgroundColor: tokens.colors.surface,
     borderRadius: 2,
-    padding: 4,
-    gap: 2,
+    padding: 2,
+    gap: 1,
     justifyContent: 'center',
   },
   labelLine: {
-    height: 1.5,
-    borderRadius: 1,
+    height: 1,
+    borderRadius: 0.5,
   },
   tapeArrow: {
     position: 'absolute',
-    bottom: 50,
-    right: 10,
-    width: 24,
-    height: 24,
+    bottom: 32,
+    right: 6,
+    width: 16,
+    height: 16,
     backgroundColor: tokens.colors.packageDark,
-    borderRadius: 12,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   arrowText: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: 'bold',
     color: tokens.colors.surface,
   },

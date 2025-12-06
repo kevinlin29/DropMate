@@ -93,14 +93,15 @@ const styles = StyleSheet.create({
     borderRadius: tokens.radii.input,
     borderWidth: 1,
     paddingHorizontal: tokens.spacing.sm,
-    paddingVertical: tokens.spacing.sm - 2,
+    paddingVertical: tokens.spacing.sm,
     gap: tokens.spacing.xs,
-    minHeight: 48,
+    minHeight: 50,
   },
   input: {
     flex: 1,
     ...tokens.typography.body,
     padding: 0,
+    height: 28,
   },
   accessory: {
     justifyContent: 'center',

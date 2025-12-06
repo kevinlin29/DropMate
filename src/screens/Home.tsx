@@ -165,7 +165,10 @@ export const HomeScreen: React.FC = () => {
               </View>
             </View>
 
-            <Pressable style={styles.notificationButton}>
+            <Pressable 
+              style={styles.notificationButton}
+              onPress={() => navigation.navigate(ROUTES.Messages)}
+            >
               <Bell color={theme.semantic.text} size={24} />
               <View style={styles.notificationBadge} />
             </Pressable>

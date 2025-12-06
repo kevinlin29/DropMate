@@ -26,6 +26,7 @@ import { TrackScreen } from '@/screens/Track';
 import { MapScreen } from '@/screens/Map';
 import { SettingsScreen } from '@/screens/Settings';
 import { ProfileScreen } from '@/screens/Profile';
+import { MessagesScreen } from '@/screens/Messages';
 import { ShipmentDetailsScreen } from '@/screens/ShipmentDetails';
 import { AddTrackingSheetScreen } from '@/screens/AddTrackingSheet';
 import { PlaceOrderScreen } from '@/screens/PlaceOrder';
@@ -165,6 +166,7 @@ const linking: LinkingOptions<RootStackParamList> = {
         },
       },
       [ROUTES.Profile]: 'profile',
+      [ROUTES.Messages]: 'messages',
       [ROUTES.ShipmentDetails]: {
         path: 'shipment/:id',
         parse: {
@@ -219,6 +221,7 @@ export const RootNavigator = () => {
 
         {/* CUSTOMER PUSH SCREENS */}
         <Stack.Screen name={ROUTES.Profile} component={ProfileScreen} options={PremiumSlideRight} />
+        <Stack.Screen name={ROUTES.Messages} component={MessagesScreen} options={PremiumSlideRight} />
         <Stack.Screen name={ROUTES.ShipmentDetails} component={ShipmentDetailsScreen} options={PremiumSlideRight} />
 
         {/* DRIVER PUSH SCREENS */}
