@@ -1,0 +1,75 @@
+export default {
+  expo: {
+    name: "DropMate",
+    slug: "dropmate",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/images/logo.png",
+    scheme: "dropmate",
+    userInterfaceStyle: "light",
+    splash: {
+      image: "./assets/images/splash-gradient.png",
+      resizeMode: "cover",
+      backgroundColor: "#F6F7F9"
+    },
+    updates: {
+      fallbackToCacheTimeout: 0
+    },
+    assetBundlePatterns: ["**/*"],
+    ios: {
+      supportsTablet: true,
+      infoPlist: {
+        NSLocationWhenInUseUsageDescription: "This app needs access to your location to show delivery routes",
+        NSLocationAlwaysUsageDescription: "This app needs access to your location to track deliveries"
+      },
+      bundleIdentifier: "com.kevinlin29.dropmate",
+      config: {
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+      }
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/images/logo.png",
+        backgroundColor: "#F6F7F9"
+      },
+      permissions: [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      config: {
+        googleMaps: {
+          apiKey: process.env.GOOGLE_MAPS_API_KEY
+        }
+      },
+      package: "com.kevinlin29.dropmate"
+    },
+    extra: {
+      USE_HTTP: true,
+      firebaseApiKey: process.env.FIREBASE_API_KEY,
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      eas: {
+        projectId: "0ec2f323-d1c4-42c4-80f4-7d93c641c2bb"
+      }
+    },
+    plugins: [
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          locationAlwaysAndWhenInUsePermission: "Allow DropMate to use your location to track deliveries."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/logo.png",
+          color: "#4A90E2"
+        }
+      ]
+    ],
+    owner: "kevinlin29"
+  }
+};

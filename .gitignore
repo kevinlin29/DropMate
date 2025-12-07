@@ -47,3 +47,4 @@ key.env
 .pnpm-store/
 build/
 dist/
+.claude/
