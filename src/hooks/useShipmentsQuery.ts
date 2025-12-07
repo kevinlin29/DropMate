@@ -4,10 +4,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getShipmentsService } from '@/api/serviceFactory';
 import { shipmentKeys } from '@/api/queryKeys';
 import { ListShipmentsOptions } from '@/api/IShipmentsService';
+import { useAppSelector } from '@/store/hooks';
 
 const service = getShipmentsService();
 
 export const useShipmentsListQuery = (options?: ListShipmentsOptions) => {
+  const authStatus = useAppSelector((state) => state.auth.status);
+  const isAuthenticated = authStatus === 'authenticated';
+
   const filters = useMemo(
     () => ({
       query: options?.query?.trim() ?? undefined,
@@ -22,6 +26,7 @@ export const useShipmentsListQuery = (options?: ListShipmentsOptions) => {
       status: filters.status ?? 'all',
     }),
     queryFn: () => service.list(filters),
+    enabled: isAuthenticated, // Only fetch when authenticated
   });
 };
 

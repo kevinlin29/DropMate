@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { driverService } from '@/api/driverService';
 import { driverKeys } from '@/api/queryKeys';
+import { useAppSelector } from '@/store/hooks';
 import type {
   AvailablePackage,
   DeliveryItem,
@@ -13,6 +14,9 @@ import type {
 // ==================== Queries ====================
 
 export const useAvailablePackagesQuery = () => {
+  const authStatus = useAppSelector((state) => state.auth.status);
+  const isAuthenticated = authStatus === 'authenticated';
+
   return useQuery({
     queryKey: driverKeys.availablePackages(),
     queryFn: async () => {
@@ -20,10 +24,14 @@ export const useAvailablePackagesQuery = () => {
       return response as { count: number; packages: AvailablePackage[] };
     },
     staleTime: 30 * 1000, // 30 seconds - packages change frequently
+    enabled: isAuthenticated, // Only fetch when authenticated
   });
 };
 
 export const useDriverDeliveriesQuery = (status?: ShipmentStatus) => {
+  const authStatus = useAppSelector((state) => state.auth.status);
+  const isAuthenticated = authStatus === 'authenticated';
+
   return useQuery({
     queryKey: driverKeys.deliveries(status),
     queryFn: async () => {
@@ -31,6 +39,7 @@ export const useDriverDeliveriesQuery = (status?: ShipmentStatus) => {
       return response as { driverId: number; count: number; deliveries: DeliveryItem[] };
     },
     staleTime: 30 * 1000,
+    enabled: isAuthenticated, // Only fetch when authenticated
   });
 };
 

@@ -30,9 +30,13 @@ export const useUserProfileQuery = () => {
  * Hook to fetch the current user's statistics
  */
 export const useUserStatsQuery = () => {
+  const authStatus = useAppSelector((state) => state.auth.status);
+  const isAuthenticated = authStatus === 'authenticated';
+
   return useQuery({
     queryKey: userKeys.stats(),
     queryFn: () => userService.getStats(),
     staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled: isAuthenticated, // Only fetch when authenticated
   });
 };
