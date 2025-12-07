@@ -48,5 +48,3 @@ key.env
 build/
 dist/
 
-# Claude Code
-.claude/
