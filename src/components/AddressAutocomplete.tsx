@@ -288,10 +288,10 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       clearTimeout(debounceTimer.current);
     }
 
-    // Set new timer
+    // Set new timer with longer delay to avoid blocking typing
     debounceTimer.current = setTimeout(() => {
       fetchPredictions(text);
-    }, 300);
+    }, 800); // Increased from 300ms to 800ms - gives user time to type multiple characters
   };
 
   // Handle prediction selection
