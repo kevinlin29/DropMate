@@ -27,6 +27,8 @@
 
 **GitHub Repository:** https://github.com/kevinlin29/DropMate
 
+**Video Demo:**  https://m.youtube.com/watch?v=yXXg8SGsrks&feature=youtu.be
+
 ---
 
 ## Motivation
